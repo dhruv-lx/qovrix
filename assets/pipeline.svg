@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 220" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pipeBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0f07" />
+      <stop offset="100%" stop-color="#040604" />
+    </linearGradient>
+
+    <linearGradient id="neonPath" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#76ff03" />
+      <stop offset="50%" stop-color="#00f5ff" />
+      <stop offset="100%" stop-color="#76ff03" />
+    </linearGradient>
+
+    <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <style>
+      @keyframes dashMove {
+        to { stroke-dashoffset: -40; }
+      }
+
+      @keyframes pulseNode {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+      }
+
+      @keyframes flowLight {
+        0% { offset-distance: 0%; opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { offset-distance: 100%; opacity: 0; }
+      }
+
+      .dash-flow {
+        stroke-dasharray: 6 6;
+        animation: dashMove 1.5s linear infinite;
+      }
+
+      .node-card {
+        transition: transform 0.3s ease;
+      }
+      .node-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .text-title { font-family: 'Space Grotesk', -apple-system, sans-serif; font-weight: 700; fill: #ffffff; font-size: 13px; }
+      .text-desc { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: #94a3b8; }
+      .text-step { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 800; letter-spacing: 1.5px; }
+    </style>
+  </defs>
+
+  <!-- Container Base -->
+  <rect width="960" height="220" rx="16" fill="url(#pipeBg)" stroke="rgba(118, 255, 3, 0.15)" stroke-width="1.5" />
+
+  <!-- Animated Interconnecting Connecting Pipeline Cable -->
+  <path id="pipelineFlow" d="M 170 110 L 310 110 M 470 110 L 610 110 M 770 110 L 830 110" fill="none" stroke="rgba(255, 255, 255, 0.1)" stroke-width="3" />
+  
+  <line x1="170" y1="110" x2="270" y2="110" stroke="url(#neonPath)" stroke-width="2.5" class="dash-flow" />
+  <line x1="430" y1="110" x2="530" y2="110" stroke="url(#neonPath)" stroke-width="2.5" class="dash-flow" />
+  <line x1="690" y1="110" x2="790" y2="110" stroke="url(#neonPath)" stroke-width="2.5" class="dash-flow" />
+
+  <!-- STAGE 1: Template Catalog -->
+  <g class="node-card" transform="translate(40, 45)">
+    <rect width="130" height="130" rx="12" fill="#0d140b" stroke="rgba(118, 255, 3, 0.4)" stroke-width="1.5" />
+    <circle cx="65" cy="38" r="18" fill="rgba(118, 255, 3, 0.1)" />
+    <text x="65" y="43" text-anchor="middle" font-size="16" fill="#76ff03">❖</text>
+    <text class="text-step" x="65" y="74" text-anchor="middle" fill="#76ff03">STAGE 01</text>
+    <text class="text-title" x="65" y="93" text-anchor="middle">113+ Presets</text>
+    <text class="text-desc" x="65" y="112" text-anchor="middle">Curated Ratios</text>
+  </g>
+
+  <!-- STAGE 2: Brand Auto-Fill -->
+  <g class="node-card" transform="translate(270, 45)">
+    <rect width="160" height="130" rx="12" fill="#0b1318" stroke="rgba(0, 245, 255, 0.4)" stroke-width="1.5" />
+    <circle cx="80" cy="38" r="18" fill="rgba(0, 245, 255, 0.1)" />
+    <text x="80" y="44" text-anchor="middle" font-size="16" fill="#00f5ff">⚡</text>
+    <text class="text-step" x="80" y="74" text-anchor="middle" fill="#00f5ff">STAGE 02</text>
+    <text class="text-title" x="80" y="93" text-anchor="middle">Brand Injection</text>
+    <text class="text-desc" x="80" y="112" text-anchor="middle">{{NAME}}, {{PHONE}}</text>
+  </g>
+
+  <!-- STAGE 3: Canvas 2D Engine -->
+  <g class="node-card" transform="translate(530, 45)">
+    <rect width="160" height="130" rx="12" fill="#130e1c" stroke="rgba(232, 121, 249, 0.4)" stroke-width="1.5" />
+    <circle cx="80" cy="38" r="18" fill="rgba(232, 121, 249, 0.1)" />
+    <text x="80" y="44" text-anchor="middle" font-size="16" fill="#e879f9">✦</text>
+    <text class="text-step" x="80" y="74" text-anchor="middle" fill="#e879f9">STAGE 03</text>
+    <text class="text-title" x="80" y="93" text-anchor="middle">2D Vector Canvas</text>
+    <text class="text-desc" x="80" y="112" text-anchor="middle">Realtime Rendering</text>
+  </g>
+
+  <!-- STAGE 4: High-Res Export -->
+  <g class="node-card" transform="translate(790, 45)">
+    <rect width="130" height="130" rx="12" fill="#15120a" stroke="rgba(251, 191, 36, 0.4)" stroke-width="1.5" />
+    <circle cx="65" cy="38" r="18" fill="rgba(251, 191, 36, 0.1)" />
+    <text x="65" y="43" text-anchor="middle" font-size="16" fill="#fbbf24">↓</text>
+    <text class="text-step" x="65" y="74" text-anchor="middle" fill="#fbbf24">STAGE 04</text>
+    <text class="text-title" x="65" y="93" text-anchor="middle">Retina Export</text>
+    <text class="text-desc" x="65" y="112" text-anchor="middle">2X PNG / PDF / JPG</text>
+  </g>
+</svg>
+

@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 380" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#18280f" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#0b1008" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#040604" stop-opacity="1" />
+    </radialGradient>
+
+    <!-- Neon Lime & Cyan Gradients -->
+    <linearGradient id="neonLime" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c6ff00" />
+      <stop offset="50%" stop-color="#76ff03" />
+      <stop offset="100%" stop-color="#00e676" />
+    </linearGradient>
+
+    <linearGradient id="cyanAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f5ff" />
+      <stop offset="100%" stop-color="#76ff03" />
+    </linearGradient>
+
+    <linearGradient id="shimmerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.2" />
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Grid Pattern -->
+    <pattern id="cyberGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(118, 255, 3, 0.05)" stroke-width="1" />
+      <circle cx="40" cy="0" r="1.5" fill="rgba(118, 255, 3, 0.15)" />
+    </pattern>
+
+    <style>
+      @keyframes pulseGlow {
+        0%, 100% { filter: drop-shadow(0 0 15px rgba(118, 255, 3, 0.4)); opacity: 0.95; }
+        50% { filter: drop-shadow(0 0 35px rgba(118, 255, 3, 0.85)); opacity: 1; }
+      }
+
+      @keyframes scanline {
+        0% { transform: translateY(-100px); opacity: 0; }
+        30% { opacity: 0.6; }
+        70% { opacity: 0.6; }
+        100% { transform: translateY(380px); opacity: 0; }
+      }
+
+      @keyframes floatSlow {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-300px); }
+        100% { transform: translateX(600px); }
+      }
+
+      @keyframes orbitParticle {
+        0% { transform: rotate(0deg) translateX(45px) rotate(0deg); }
+        100% { transform: rotate(360deg) translateX(45px) rotate(-360deg); }
+      }
+
+      .logo-pulse { animation: pulseGlow 4s ease-in-out infinite; }
+      .floating-badge { animation: floatSlow 5s ease-in-out infinite; }
+      .scan-beam { animation: scanline 6s linear infinite; }
+      .shimmer-text { animation: shimmer 5s ease-in-out infinite; }
+
+      .tech-mono { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+      .brand-font { font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; }
+    </style>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1000" height="380" rx="20" fill="url(#bgGlow)" />
+  <rect width="1000" height="380" rx="20" fill="url(#cyberGrid)" />
+
+  <!-- Animated Scanline Accent Beam -->
+  <g class="scan-beam">
+    <rect x="0" y="0" width="1000" height="2" fill="url(#cyanAccent)" opacity="0.4" />
+    <rect x="0" y="2" width="1000" height="25" fill="url(#neonLime)" opacity="0.04" />
+  </g>
+
+  <!-- Geometric Decorative Corner Accents -->
+  <path d="M 20 50 L 20 20 L 50 20" fill="none" stroke="#76ff03" stroke-width="2.5" opacity="0.6" />
+  <path d="M 980 50 L 980 20 L 950 20" fill="none" stroke="#76ff03" stroke-width="2.5" opacity="0.6" />
+  <path d="M 20 330 L 20 360 L 50 360" fill="none" stroke="#76ff03" stroke-width="2.5" opacity="0.6" />
+  <path d="M 980 330 L 980 360 L 950 360" fill="none" stroke="#76ff03" stroke-width="2.5" opacity="0.6" />
+
+  <!-- Ambient Light Orbs -->
+  <circle cx="500" cy="110" r="140" fill="#76ff03" opacity="0.08" filter="url(#softGlow)" />
+  <circle cx="200" cy="240" r="90" fill="#00f5ff" opacity="0.04" filter="url(#softGlow)" />
+  <circle cx="800" cy="240" r="90" fill="#76ff03" opacity="0.05" filter="url(#softGlow)" />
+
+  <!-- Main Hero Brand Icon (Vector QOVRIX Logo) -->
+  <g class="logo-pulse" transform="translate(500, 105)">
+    <!-- Folded Hexagonal Neon Q -->
+    <g transform="translate(-40, -42) scale(0.85)">
+      <!-- Base Shadow -->
+      <path d="M 32 8 L 68 8 L 88 28 L 88 64 L 68 84 L 52 84 L 72 104 L 56 104 L 40 88 L 32 88 L 12 68 L 12 28 Z" fill="#091404" />
+      <!-- Outer Hexagon Track -->
+      <path d="M 34 10 L 66 10 L 84 28 L 84 62 L 66 80 L 34 80 L 16 62 L 16 28 Z" fill="none" stroke="url(#neonLime)" stroke-width="12" stroke-linejoin="round" />
+      <!-- Inner Cutout -->
+      <path d="M 38 28 L 62 28 L 70 36 L 70 54 L 62 62 L 38 62 L 30 54 L 30 36 Z" fill="#040604" />
+      <!-- Stylized Q Tail Accent -->
+      <path d="M 50 56 L 76 86 L 94 86 L 68 56 Z" fill="url(#neonLime)" />
+    </g>
+  </g>
+
+  <!-- Big Brand Title "Q O V R I X" -->
+  <g transform="translate(500, 205)">
+    <text class="brand-font" x="0" y="0" text-anchor="middle" font-size="52" fill="#ffffff" letter-spacing="8">QOVRIX</text>
+    <text class="brand-font" x="0" y="0" text-anchor="middle" font-size="52" fill="none" stroke="url(#neonLime)" stroke-width="2" letter-spacing="8" opacity="0.8">QOVRIX</text>
+  </g>
+
+  <!-- Tagline Banner -->
+  <g transform="translate(500, 240)">
+    <text class="brand-font" x="0" y="0" text-anchor="middle" font-size="16" fill="#a3e635" letter-spacing="2">NEXT-GENERATION IN-BROWSER VECTOR GRAPHIC STUDIO</text>
+  </g>
+
+  <g transform="translate(500, 268)">
+    <text class="tech-mono" x="0" y="0" text-anchor="middle" font-size="13" fill="#94a3b8">Zero-Install • 100% Client-Side • Hardware-Accelerated Canvas 2D • Offline-First</text>
+  </g>
+
+  <!-- Bottom Floating Feature Pills -->
+  <g class="floating-badge" transform="translate(500, 318)">
+    <!-- Pill 1: Templates -->
+    <g transform="translate(-290, 0)">
+      <rect x="-85" y="-16" width="170" height="32" rx="16" fill="#0d1808" stroke="rgba(118, 255, 3, 0.3)" stroke-width="1.5" />
+      <circle cx="-65" cy="0" r="4" fill="#76ff03" />
+      <text class="tech-mono" x="-50" y="4" font-size="11" font-weight="700" fill="#ffffff">113+ TEMPLATES</text>
+    </g>
+
+    <!-- Pill 2: Ratios -->
+    <g transform="translate(-95, 0)">
+      <rect x="-85" y="-16" width="170" height="32" rx="16" fill="#0d1808" stroke="rgba(118, 255, 3, 0.3)" stroke-width="1.5" />
+      <circle cx="-65" cy="0" r="4" fill="#00f5ff" />
+      <text class="tech-mono" x="-50" y="4" font-size="11" font-weight="700" fill="#ffffff">UNIVERSAL RATIOS</text>
+    </g>
+
+    <!-- Pill 3: Brand Injection -->
+    <g transform="translate(95, 0)">
+      <rect x="-85" y="-16" width="170" height="32" rx="16" fill="#0d1808" stroke="rgba(118, 255, 3, 0.3)" stroke-width="1.5" />
+      <circle cx="-65" cy="0" r="4" fill="#fbbf24" />
+      <text class="tech-mono" x="-50" y="4" font-size="11" font-weight="700" fill="#ffffff">BRAND AUTO-FILL</text>
+    </g>
+
+    <!-- Pill 4: Zero Build -->
+    <g transform="translate(290, 0)">
+      <rect x="-85" y="-16" width="170" height="32" rx="16" fill="#0d1808" stroke="rgba(118, 255, 3, 0.3)" stroke-width="1.5" />
+      <circle cx="-65" cy="0" r="4" fill="#e879f9" />
+      <text class="tech-mono" x="-50" y="4" font-size="11" font-weight="700" fill="#ffffff">ZERO DEPENDENCY</text>
+    </g>
+  </g>
+</svg>
+

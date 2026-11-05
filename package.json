@@ -18,6 +18,14 @@
     "design",
     "graphic"
   ],
-  "author": "QOVRIX Team",
+  "author": "Dhruv (@dhruv-lx)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhruv-lx/qovrix.git"
+  },
+  "homepage": "https://github.com/dhruv-lx/qovrix#readme",
+  "bugs": {
+    "url": "https://github.com/dhruv-lx/qovrix/issues"
+  },
   "license": "MIT"
 }

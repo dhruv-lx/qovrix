@@ -1020,30 +1020,30 @@
 
         </div>
 
-        <!-- QOVRIXs Background Context Controls (When nothing selected) -->
+        <!-- Artboard Background Context Controls (When nothing selected) -->
         <div id="canvasContextControls" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-weight: 600; color: var(--text-sub);">QOVRIXs Background:</span>
-                <div class="color-circle-btn" id="canvasBgPreview" style="background: #ffffff;" title="QOVRIXs Background Color">
-                    <input type="color" id="canvasBgInput" onchange="editor.setQOVRIXsBackground(this.value)">
+                <span style="font-weight: 600; color: var(--text-sub);">Artboard Background:</span>
+                <div class="color-circle-btn" id="canvasBgPreview" style="background: #ffffff;" title="Artboard Background Color">
+                    <input type="color" id="canvasBgInput" onchange="editor.setCanvasBackground(this.value)">
                 </div>
 
                 <!-- Fast preset color swatches -->
                 <div style="display: flex; gap: 4px;">
-                    <div onclick="editor.setQOVRIXsBackground('#0e131f')" style="width: 20px; height: 20px; border-radius: 4px; background: #0e131f; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Midnight Dark"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#1e3a8a')" style="width: 20px; height: 20px; border-radius: 4px; background: #1e3a8a; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Deep Royal"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#7c2d12')" style="width: 20px; height: 20px; border-radius: 4px; background: #7c2d12; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Warm Terracotta"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#042f2e')" style="width: 20px; height: 20px; border-radius: 4px; background: #042f2e; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Emerald Teal"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#500724')" style="width: 20px; height: 20px; border-radius: 4px; background: #500724; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Crimson Rose"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#312e81')" style="width: 20px; height: 20px; border-radius: 4px; background: #312e81; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Electric Indigo"></div>
-                    <div onclick="editor.setQOVRIXsBackground('#f8fafc')" style="width: 20px; height: 20px; border-radius: 4px; background: #f8fafc; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);" title="Clean White"></div>
+                    <div onclick="editor.setCanvasBackground('#0e131f')" style="width: 20px; height: 20px; border-radius: 4px; background: #0e131f; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Midnight Dark"></div>
+                    <div onclick="editor.setCanvasBackground('#1e3a8a')" style="width: 20px; height: 20px; border-radius: 4px; background: #1e3a8a; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Deep Royal"></div>
+                    <div onclick="editor.setCanvasBackground('#7c2d12')" style="width: 20px; height: 20px; border-radius: 4px; background: #7c2d12; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Warm Terracotta"></div>
+                    <div onclick="editor.setCanvasBackground('#042f2e')" style="width: 20px; height: 20px; border-radius: 4px; background: #042f2e; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Emerald Teal"></div>
+                    <div onclick="editor.setCanvasBackground('#500724')" style="width: 20px; height: 20px; border-radius: 4px; background: #500724; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Crimson Rose"></div>
+                    <div onclick="editor.setCanvasBackground('#312e81')" style="width: 20px; height: 20px; border-radius: 4px; background: #312e81; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Electric Indigo"></div>
+                    <div onclick="editor.setCanvasBackground('#f8fafc')" style="width: 20px; height: 20px; border-radius: 4px; background: #f8fafc; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);" title="Clean White"></div>
                 </div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 11px; color: var(--text-dim);">Select any element on canvas to customize typography & colors</span>
+                <span style="font-size: 11px; color: var(--text-dim);">Select any element on stage to customize typography & colors</span>
                 <button class="context-btn" onclick="toggleInspectorPanel()" title="Toggle Inspector Drawer">
-                    <i class="fas fa-sliders-h"></i> QOVRIXs Sizing
+                    <i class="fas fa-sliders-h"></i> Artboard Sizing
                 </button>
             </div>
         </div>
@@ -1334,7 +1334,7 @@
                     <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="drawer-body">
-                    <button class="qovrix-pill-btn btn-gradient-cta" style="width: 100%; height: 40px; justify-content: center;" onclick="editor.applyBrandProfileToQOVRIXs()">
+                    <button class="qovrix-pill-btn btn-gradient-cta" style="width: 100%; height: 40px; justify-content: center;" onclick="editor.applyBrandProfileToCanvas()">
                         <i class="fas fa-magic"></i> Apply Brand to All Text
                     </button>
 
@@ -1354,7 +1354,7 @@
             <!-- TAB: BACKGROUNDS & STYLES -->
             <div class="tab-pane" id="pane-backgrounds" style="display: none;">
                 <div class="drawer-header">
-                    <span class="drawer-title"><i class="fas fa-palette" style="color: var(--qovrix-teal);"></i> QOVRIXs Styles & Gradients</span>
+                    <span class="drawer-title"><i class="fas fa-palette" style="color: var(--qovrix-teal);"></i> Artboard Styles & Gradients</span>
                     <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="drawer-body">
@@ -1397,15 +1397,15 @@
             </div>
 
             <div class="inspector-section">
-                <span class="section-label">QOVRIXs Dimensions (px)</span>
+                <span class="section-label">Artboard Dimensions (px)</span>
                 <div class="input-row">
                     <div style="flex: 1;">
                         <span style="font-size: 11px; color: var(--text-dim);">Width</span>
-                        <input type="number" id="inspQOVRIXsW" class="std-input" value="800" onchange="editor.setCustomSize()">
+                        <input type="number" id="inspCanvasW" class="std-input" value="800" onchange="editor.setCustomSize()">
                     </div>
                     <div style="flex: 1;">
                         <span style="font-size: 11px; color: var(--text-dim);">Height</span>
-                        <input type="number" id="inspQOVRIXsH" class="std-input" value="1000" onchange="editor.setCustomSize()">
+                        <input type="number" id="inspCanvasH" class="std-input" value="1000" onchange="editor.setCustomSize()">
                     </div>
                 </div>
             </div>
@@ -1573,7 +1573,7 @@
                 this.selectedElement = null;
                 this.elementId = 1;
 
-                // QOVRIXs Dimensions
+                // Artboard Dimensions
                 this.canvasWidth = 800;
                 this.canvasHeight = 1000;
                 this.backgroundColor = '#ffffff';
@@ -1601,7 +1601,7 @@
             }
 
             init() {
-                this.setupQOVRIXs();
+                this.setupCanvas();
                 this.setupEvents();
                 this.setupStockPhotos();
                 this.setupGradientsAndPalettes();
@@ -1613,7 +1613,7 @@
                 this.render();
             }
 
-            setupQOVRIXs() {
+            setupCanvas() {
                 this.canvas.width = this.canvasWidth;
                 this.canvas.height = this.canvasHeight;
                 this.canvas.style.width = this.canvasWidth + 'px';
@@ -1621,8 +1621,8 @@
 
                 document.getElementById('canvasBgInput').value = this.backgroundColor;
                 document.getElementById('canvasBgPreview').style.background = this.backgroundColor;
-                document.getElementById('inspQOVRIXsW').value = this.canvasWidth;
-                document.getElementById('inspQOVRIXsH').value = this.canvasHeight;
+                document.getElementById('inspCanvasW').value = this.canvasWidth;
+                document.getElementById('inspCanvasH').value = this.canvasHeight;
             }
 
             setupEvents() {
@@ -1873,7 +1873,7 @@
                 this.isBrushMode = !this.isBrushMode;
                 const btn = document.getElementById('brushToggleBtn');
                 btn.classList.toggle('active', this.isBrushMode);
-                btn.innerHTML = this.isBrushMode ? '<i class="fas fa-check"></i> Brush Active (Draw on QOVRIXs)' : '<i class="fas fa-pen"></i> Enable Brush Drawing';
+                btn.innerHTML = this.isBrushMode ? '<i class="fas fa-check"></i> Brush Active (Draw on Artboard)' : '<i class="fas fa-pen"></i> Enable Brush Drawing';
                 this.canvas.style.cursor = this.isBrushMode ? 'crosshair' : 'default';
                 this.showToast(this.isBrushMode ? 'Brush drawing enabled' : 'Brush mode turned off', 'info');
             }
@@ -2605,7 +2605,7 @@
             // ============================================
             // CANVAS SIZING & BACKGROUNDS
             // ============================================
-            setQOVRIXsBackground(c) {
+            setCanvasBackground(c) {
                 this.backgroundColor = c;
                 document.getElementById('canvasBgInput').value = c.startsWith('#') ? c : '#ffffff';
                 document.getElementById('canvasBgPreview').style.background = c;
@@ -2619,19 +2619,19 @@
             }
 
             setCustomSize() {
-                const w = parseInt(document.getElementById('inspQOVRIXsW').value) || 800;
-                const h = parseInt(document.getElementById('inspQOVRIXsH').value) || 1000;
+                const w = parseInt(document.getElementById('inspCanvasW').value) || 800;
+                const h = parseInt(document.getElementById('inspCanvasH').value) || 1000;
                 this.setDimensions(w, h);
             }
 
             setDimensions(w, h) {
                 this.canvasWidth = w;
                 this.canvasHeight = h;
-                this.setupQOVRIXs();
+                this.setupCanvas();
                 this.fitStage();
                 this.render();
                 this.saveState();
-                this.showToast(`QOVRIXs resized to ${w}×${h}px`, 'info');
+                this.showToast(`Artboard resized to ${w}×${h}px`, 'info');
             }
 
             toggleGrid() {
@@ -2710,7 +2710,7 @@
                 this.backgroundColor = t.bgColor || t.background || t.backgroundColor || '#ffffff';
 
                 document.getElementById('projectTitle').value = t.name || t.title || 'Custom Poster';
-                this.setupQOVRIXs();
+                this.setupCanvas();
 
                 this.elements = [];
                 this.selectedElement = null;
@@ -2861,7 +2861,7 @@
                 };
             }
 
-            applyBrandProfileToQOVRIXs() {
+            applyBrandProfileToCanvas() {
                 const b = this.getBusiness();
                 this.elements.forEach(el => {
                     if (el.type === 'text') {
@@ -3008,7 +3008,7 @@
                 this.backgroundColor = s.backgroundColor || '#ffffff';
                 this.canvasWidth = s.canvasWidth || 800;
                 this.canvasHeight = s.canvasHeight || 1000;
-                this.setupQOVRIXs();
+                this.setupCanvas();
                 this.updateContextToolbar();
                 this.render();
             }
@@ -3061,7 +3061,7 @@
                         const item = document.createElement('div');
                         item.style.cssText = `height: 50px; border-radius: 6px; background: ${g.css}; cursor: pointer; border: 1px solid var(--border-color); display: flex; align-items: flex-end; padding: 4px 6px;`;
                         item.innerHTML = `<span style="font-size: 10px; font-weight: 700; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${g.name}</span>`;
-                        item.onclick = () => this.setQOVRIXsBackground(g.css);
+                        item.onclick = () => this.setCanvasBackground(g.css);
                         gradGrid.appendChild(item);
                     });
                 }
@@ -3085,7 +3085,7 @@
                             <span style="font-size: 11px; font-weight: 600;">${p.name}</span>
                         `;
                         c.onclick = () => {
-                            this.setQOVRIXsBackground(p.colors[3]);
+                            this.setCanvasBackground(p.colors[3]);
                             this.elements.forEach(el => {
                                 if (el.type === 'text') {
                                     el.color = (el.fontSize >= 32) ? p.colors[2] : p.colors[0];
