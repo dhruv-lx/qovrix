@@ -1,0 +1,23 @@
+{
+  "name": "qovrix",
+  "version": "2.0.0",
+  "description": "QOVRIX - Creative Poster & Graphic Studio",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "dev": "npx serve . -l 3000",
+    "build": "echo 'No build process needed for static site'"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "keywords": [
+    "poster",
+    "editor",
+    "qovrix",
+    "design",
+    "graphic"
+  ],
+  "author": "QOVRIX Team",
+  "license": "MIT"
+}

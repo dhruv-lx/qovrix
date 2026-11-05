@@ -1,0 +1,3346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QOVRIX Studio - AI Graphic & Banner Editor</title>
+    <link rel="icon" type="image/jpeg" href="qovrix-logo.jpg">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@400;700&family=Bebas+Neue&family=Caveat:wght@400..700&family=Dancing+Script:wght@400..700&family=Fredoka:wght@300..700&family=Inter:wght@300;400;500;600;700;800;900&family=Lato:wght@300;400;700&family=Montserrat:wght@300;400;500;600;700;800;900&family=Oswald:wght@400;600;700&family=Pacifico&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@300;400;500;600;700;800&family=Raleway:wght@400;600;700&family=Righteous&family=Roboto:wght@300;400;500;700&family=Space+Grotesk:wght@400;600;700&family=Ubuntu:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase SDK & Configuration -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
+    <!-- Export Libraries (html2canvas & jsPDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        :root {
+            /* Qovrix Iconic Brand Colors */
+            --qovrix-teal: #00c4cc;
+            --qovrix-purple: #7d2ae8;
+            --qovrix-blue: #0e86d4;
+            --qovrix-gradient: linear-gradient(135deg, #00c4cc 0%, #7d2ae8 100%);
+            
+            /* Dark Studio Mode (Default) */
+            --bg-dark: #0e131f;
+            --bg-header: #141a29;
+            --bg-nav: #101524;
+            --bg-drawer: #171e30;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-stage: #090c14;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --text-dim: #64748b;
+            
+            /* Sizing */
+            --header-h: 56px;
+            --context-h: 46px;
+            --nav-w: 72px;
+            --drawer-w: 340px;
+            --inspector-w: 300px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        /* Light Mode Switch */
+        body.light-theme {
+            --bg-dark: #f1f5f9;
+            --bg-header: #ffffff;
+            --bg-nav: #f8fafc;
+            --bg-drawer: #ffffff;
+            --bg-card: #f8fafc;
+            --bg-stage: #e2e8f0;
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --text-dim: #94a3b8;
+        }
+
+        body.light-theme .qovrix-pill-btn,
+        body.light-theme .home-btn,
+        body.light-theme .font-select-box,
+        body.light-theme .font-size-stepper,
+        body.light-theme .color-box,
+        body.light-theme .context-btn {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+
+        body.light-theme .qovrix-pill-btn:hover,
+        body.light-theme .home-btn:hover,
+        body.light-theme .context-btn:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        body.light-theme .side-nav .nav-pill {
+            color: #64748b;
+        }
+
+        body.light-theme .side-nav .nav-pill:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        body.light-theme .side-nav .nav-pill.active {
+            background: #ede9fe;
+            color: #7d2ae8;
+        }
+
+        body.light-theme .qovrix-bottom-bar {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            color: #0f172a;
+        }
+
+        body.light-theme .bottom-icon-btn {
+            color: #475569;
+        }
+
+        body.light-theme .bottom-icon-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        body.light-theme .qovrix-search-bar input {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        body.light-theme .filter-chip {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            color: #475569;
+        }
+
+        body.light-theme .modal-window {
+            background: #ffffff;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        /* 1. TOP HEADER */
+        .top-header {
+            height: var(--header-h);
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .home-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--border-hover);
+        }
+
+        .logo-badge {
+            font-size: 15px;
+            font-weight: 800;
+            background: var(--qovrix-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .title-input {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            width: 170px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .title-input:hover { border-color: var(--border-color); background: rgba(255, 255, 255, 0.03); }
+        .title-input:focus { border-color: var(--qovrix-purple); background: rgba(255, 255, 255, 0.07); }
+
+        .header-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qovrix-pill-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            height: 34px;
+            padding: 0 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .qovrix-pill-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--text-main);
+            border-color: var(--border-hover);
+        }
+        .qovrix-pill-btn.active {
+            background: var(--qovrix-purple);
+            color: white;
+            border-color: var(--qovrix-purple);
+        }
+
+        .btn-gradient-cta {
+            background: var(--qovrix-gradient);
+            color: white !important;
+            border: none;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(125, 42, 232, 0.35);
+        }
+        .btn-gradient-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(125, 42, 232, 0.5);
+        }
+
+        .btn-success-save {
+            background: #10b981;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-success-save:hover { background: #059669; }
+
+        /* 2. CONTEXTUAL TOOLBAR (QOVRIX Floating Bar below Header) */
+        .context-toolbar {
+            height: var(--context-h);
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            gap: 12px;
+            z-index: 90;
+            flex-shrink: 0;
+            font-size: 13px;
+        }
+
+        .context-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+        }
+
+        .context-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-sub);
+            height: 30px;
+            min-width: 30px;
+            padding: 0 6px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+        }
+        .context-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+        .context-btn.active {
+            background: rgba(125, 42, 232, 0.2);
+            color: var(--qovrix-purple);
+            border-color: var(--qovrix-purple);
+        }
+
+        .divider-v {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        .font-select-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 500;
+            outline: none;
+            width: 140px;
+            cursor: pointer;
+        }
+        .font-select-box option { background: #1e293b; color: white; }
+
+        .font-size-stepper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            height: 30px;
+        }
+        .font-size-stepper button {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            width: 26px;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        .font-size-stepper button:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+        .font-size-stepper input {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            width: 38px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .color-circle-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .color-circle-btn input {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 44px;
+            height: 44px;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* 3. WORKSPACE CORE */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Side Navigation (QOVRIX Slim Left Icon Bar) */
+        .side-nav {
+            width: var(--nav-w);
+            background: var(--bg-nav);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            z-index: 80;
+            flex-shrink: 0;
+        }
+
+        .nav-pill {
+            width: 58px;
+            height: 52px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            color: var(--text-sub);
+            transition: all 0.2s;
+            font-size: 10px;
+            font-weight: 600;
+            position: relative;
+        }
+        .nav-pill i { font-size: 17px; }
+        .nav-pill:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+        }
+        .nav-pill.active {
+            color: var(--qovrix-teal);
+            background: rgba(0, 196, 204, 0.12);
+        }
+        .nav-pill.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            background: var(--qovrix-teal);
+            border-radius: 0 3px 3px 0;
+        }
+
+        /* Secondary Slide-out Drawer Panel */
+        .drawer-panel {
+            width: var(--drawer-w);
+            background: var(--bg-drawer);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            z-index: 70;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drawer-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+            border-right: none;
+        }
+
+        .drawer-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .drawer-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .drawer-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .drawer-close:hover { color: var(--text-main); }
+
+        .drawer-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        /* Search Bar inside Drawer */
+        .qovrix-search-bar {
+            position: relative;
+        }
+        .qovrix-search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+            font-size: 13px;
+        }
+        .qovrix-search-bar input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 9px 12px 9px 34px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+        .qovrix-search-bar input:focus {
+            border-color: var(--qovrix-purple);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Category Chips Bar */
+        .chips-scroll {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .chips-scroll::-webkit-scrollbar { height: 3px; }
+        .chips-scroll::-webkit-scrollbar-thumb { background: var(--border-color); }
+        .filter-chip {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-sub);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: var(--qovrix-purple);
+            color: white;
+            border-color: var(--qovrix-purple);
+        }
+
+        /* Templates Grid inside Drawer */
+        .templates-gallery {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .tpl-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tpl-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--qovrix-teal);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+        .tpl-card-preview {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+        .tpl-card-meta {
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.85);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tpl-card-name { font-size: 12px; font-weight: 700; color: var(--text-main); }
+        .tpl-card-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--qovrix-teal); }
+
+        /* Elements Grid */
+        .elements-subgrid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .elem-card-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: center;
+        }
+        .elem-card-btn i { font-size: 20px; color: var(--qovrix-teal); }
+        .elem-card-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-color: var(--qovrix-purple);
+        }
+
+        /* Stickers & Badges */
+        .sticker-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 13px;
+            cursor: pointer;
+            transition: transform 0.15s;
+            text-align: center;
+        }
+        .sticker-badge:hover { transform: scale(1.04); }
+
+        /* 4. CANVAS STAGE */
+        .canvas-stage {
+            flex: 1;
+            background: var(--bg-stage);
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(125, 42, 232, 0.06) 0%, transparent 65%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 28px 28px, 28px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            position: relative;
+            padding: 40px;
+        }
+
+        .canvas-frame {
+            position: relative;
+            background: white;
+            box-shadow: 0 25px 65px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.12);
+            border-radius: 4px;
+            transform-origin: center center;
+            transition: transform 0.15s ease-out;
+        }
+
+        #canvas {
+            display: block;
+            border-radius: 4px;
+            cursor: default;
+        }
+
+        /* QOVRIX Floating Zoom & Page Bar at bottom of stage */
+        .qovrix-bottom-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 26, 41, 0.88);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            padding: 4px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 60;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.45);
+        }
+
+        .bottom-icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 13px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .bottom-icon-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; }
+
+        /* 5. RIGHT INSPECTOR / PROPERTY DRAWER */
+        .inspector-panel {
+            width: var(--inspector-w);
+            background: var(--bg-drawer);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 70;
+            transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .inspector-panel.collapsed {
+            width: 0;
+            overflow: hidden;
+            border-left: none;
+        }
+
+        .inspector-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .std-input, .std-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 13px;
+            padding: 7px 10px;
+            outline: none;
+        }
+        .std-input:focus, .std-select:focus {
+            border-color: var(--qovrix-purple);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .slider-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-wrapper input[type="range"] {
+            flex: 1;
+            accent-color: var(--qovrix-teal);
+            cursor: pointer;
+        }
+        .slider-val {
+            font-size: 12px;
+            font-weight: 600;
+            width: 38px;
+            text-align: right;
+            color: var(--text-sub);
+        }
+
+        /* Toast Container */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 99999;
+            pointer-events: none;
+        }
+        .qovrix-toast {
+            background: rgba(20, 26, 41, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 12px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.25s ease;
+            pointer-events: auto;
+        }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modal Overlay */
+        .qovrix-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .qovrix-modal-overlay.active { display: flex; }
+        .qovrix-modal {
+            background: var(--bg-drawer);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 520px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+            animation: popIn 0.2s ease;
+        }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+        .modal-top {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-content-area {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. TOP HEADER -->
+    <header class="top-header">
+        <div class="header-brand">
+            <a href="index.html" class="home-btn" title="Back to Dashboard">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <div class="logo-badge" style="display: flex; align-items: center; gap: 8px;">
+                <img src="qovrix-logo.jpg" alt="QOVRIX" style="width: 26px; height: 26px; border-radius: 6px; object-fit: cover; border: 1.5px solid rgba(118, 255, 3, 0.4); box-shadow: 0 0 10px rgba(118, 255, 3, 0.3);">
+                <span style="font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 15px; color: #ffffff; letter-spacing: -0.3px;">QOVRIX</span>
+            </div>
+            <input type="text" class="title-input" id="projectTitle" value="Untitled Design" title="Click to rename design">
+            
+            <!-- Quick Preset Size -->
+            <select class="std-select" id="canvasSizePreset" style="width: 175px; height: 32px; font-size: 12px;" onchange="editor.setPresetDimensions(this.value)">
+                <option value="800x1000">Poster (4:5) • 800×1000</option>
+                <option value="1080x1080">Instagram (1:1) • 1080×1080</option>
+                <option value="1200x675">YouTube Banner • 1200×675</option>
+                <option value="1080x1920">Story / Reel • 1080×1920</option>
+                <option value="1200x630">Facebook Post • 1200×630</option>
+                <option value="1240x1754">A4 Printable • 1240×1754</option>
+            </select>
+        </div>
+
+        <!-- Center Tools: Undo, Redo, Grid, Resize, AI, Magic -->
+        <div class="header-actions-group">
+            <button class="qovrix-pill-btn" onclick="editor.undo()" title="Undo (Ctrl+Z)">
+                <i class="fas fa-undo"></i>
+            </button>
+            <button class="qovrix-pill-btn" onclick="editor.redo()" title="Redo (Ctrl+Y)">
+                <i class="fas fa-redo"></i>
+            </button>
+            <button class="qovrix-pill-btn" id="gridBtn" onclick="editor.toggleGrid()" title="Toggle Alignment Grid">
+                <i class="fas fa-border-all"></i> Grid
+            </button>
+            <button class="qovrix-pill-btn" onclick="openMagicResizeModal()" title="Magic Resize Tool">
+                <i class="fas fa-expand-arrows-alt"></i> Resize
+            </button>
+            <button class="qovrix-pill-btn" onclick="openAITextModal()" title="AI Copywriter Assistant">
+                <i class="fas fa-magic"></i> AI Text
+            </button>
+            <button class="qovrix-pill-btn" onclick="openVariationsModal()" title="Generate Variations">
+                <i class="fas fa-swatchbook"></i> Variations
+            </button>
+        </div>
+
+        <!-- Right Tools: Preview, Theme, Save, Export -->
+        <div class="header-actions-group">
+            <button class="qovrix-pill-btn" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <button class="qovrix-pill-btn" onclick="toggleEditorFullscreen()" id="studioFsBtn" title="Full Screen Window (F / F11)">
+                <i class="fas fa-expand"></i> Fullscreen
+            </button>
+            <button class="qovrix-pill-btn btn-success-save" onclick="editor.saveProject()" title="Save to My Banners">
+                <i class="fas fa-cloud-upload-alt"></i> Save
+            </button>
+            <button class="qovrix-pill-btn btn-gradient-cta" onclick="openExportModal()" title="Download High-Resolution Export">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. CONTEXTUAL FLOATING TOOLBAR (QOVRIX Style) -->
+    <div class="context-toolbar" id="contextToolbar">
+        
+        <!-- Element Selected Toolbar (Dynamic) -->
+        <div id="elementContextControls" style="display: none; align-items: center; gap: 8px; width: 100%;">
+            
+            <!-- Type badge -->
+            <span id="ctxTypeBadge" style="font-size: 10px; font-weight: 800; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: rgba(0, 196, 204, 0.15); color: var(--qovrix-teal);">TEXT</span>
+
+            <!-- Text Specific Controls -->
+            <div id="ctxTextOptions" style="display: flex; align-items: center; gap: 6px;">
+                <select id="ctxFontFamily" class="font-select-box" onchange="editor.updateProperty('fontFamily', this.value)">
+                    <option value="Montserrat">Montserrat</option>
+                    <option value="Inter">Inter</option>
+                    <option value="Poppins">Poppins</option>
+                    <option value="Playfair Display">Playfair Display</option>
+                    <option value="Bebas Neue">Bebas Neue</option>
+                    <option value="Oswald">Oswald</option>
+                    <option value="Space Grotesk">Space Grotesk</option>
+                    <option value="Roboto">Roboto</option>
+                    <option value="Raleway">Raleway</option>
+                    <option value="Righteous">Righteous</option>
+                    <option value="Pacifico">Pacifico</option>
+                    <option value="Dancing Script">Dancing Script</option>
+                    <option value="Caveat">Caveat</option>
+                    <option value="Fredoka">Fredoka</option>
+                    <option value="Arvo">Arvo</option>
+                </select>
+
+                <div class="font-size-stepper">
+                    <button onclick="editor.stepFontSize(-2)"><i class="fas fa-minus"></i></button>
+                    <input type="number" id="ctxFontSize" value="28" oninput="editor.updateProperty('fontSize', parseInt(this.value)||24)">
+                    <button onclick="editor.stepFontSize(2)"><i class="fas fa-plus"></i></button>
+                </div>
+
+                <div class="color-circle-btn" id="ctxColorPreview" style="background: #ffffff;" title="Text Color">
+                    <input type="color" id="ctxColorInput" onchange="editor.updateProperty('color', this.value)">
+                </div>
+
+                <div class="divider-v"></div>
+
+                <button class="context-btn" id="ctxBoldBtn" onclick="editor.toggleStyle('bold')" title="Bold"><i class="fas fa-bold"></i></button>
+                <button class="context-btn" id="ctxItalicBtn" onclick="editor.toggleStyle('italic')" title="Italic"><i class="fas fa-italic"></i></button>
+                <button class="context-btn" id="ctxUnderlineBtn" onclick="editor.toggleStyle('underline')" title="Underline"><i class="fas fa-underline"></i></button>
+                <button class="context-btn" id="ctxUpperBtn" onclick="editor.toggleUppercase()" title="Uppercase"><i class="fas fa-font-case"></i> aA</button>
+
+                <div class="divider-v"></div>
+
+                <button class="context-btn" onclick="editor.updateProperty('textAlign', 'left')" title="Align Left"><i class="fas fa-align-left"></i></button>
+                <button class="context-btn" onclick="editor.updateProperty('textAlign', 'center')" title="Align Center"><i class="fas fa-align-center"></i></button>
+                <button class="context-btn" onclick="editor.updateProperty('textAlign', 'right')" title="Align Right"><i class="fas fa-align-right"></i></button>
+
+                <button class="context-btn" onclick="openTextEffectsModal()" title="Text Shadow & Effects"><i class="fas fa-wand-magic-sparkles"></i> Effects</button>
+            </div>
+
+            <!-- Shape Specific Controls -->
+            <div id="ctxShapeOptions" style="display: none; align-items: center; gap: 6px;">
+                <span style="font-size: 11px; color: var(--text-dim);">Fill:</span>
+                <div class="color-circle-btn" id="ctxFillPreview" style="background: #6366f1;" title="Fill Color">
+                    <input type="color" id="ctxFillInput" onchange="editor.updateProperty('backgroundColor', this.value)">
+                </div>
+
+                <span style="font-size: 11px; color: var(--text-dim); margin-left: 6px;">Border:</span>
+                <div class="color-circle-btn" id="ctxBorderPreview" style="background: #ffffff;" title="Border Color">
+                    <input type="color" id="ctxBorderInput" onchange="editor.updateProperty('borderColor', this.value)">
+                </div>
+                
+                <input type="number" id="ctxBorderWidth" class="std-input" min="0" max="40" style="width: 50px; height: 28px;" title="Border Width" oninput="editor.updateProperty('borderWidth', parseInt(this.value)||0)">
+                <input type="number" id="ctxRadius" class="std-input" min="0" max="100" style="width: 50px; height: 28px;" title="Corner Radius" oninput="editor.updateProperty('borderRadius', parseInt(this.value)||0)">
+            </div>
+
+            <!-- Image Specific Controls -->
+            <div id="ctxImageOptions" style="display: none; align-items: center; gap: 6px;">
+                <button class="context-btn" onclick="editor.flipElement('h')" title="Flip Horizontal"><i class="fas fa-arrows-alt-h"></i> Flip H</button>
+                <button class="context-btn" onclick="editor.flipElement('v')" title="Flip Vertical"><i class="fas fa-arrows-alt-v"></i> Flip V</button>
+                <select id="ctxImageFilter" class="std-select" style="width: 110px; height: 28px; font-size: 11px;" onchange="editor.updateProperty('filter', this.value)">
+                    <option value="none">Normal</option>
+                    <option value="grayscale(100%)">Grayscale</option>
+                    <option value="sepia(80%)">Vintage Sepia</option>
+                    <option value="contrast(150%)">High Contrast</option>
+                    <option value="brightness(130%)">Bright</option>
+                    <option value="invert(100%)">Invert</option>
+                </select>
+            </div>
+
+            <div class="divider-v"></div>
+
+            <!-- Position, Opacity, Layers, Delete -->
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 6px;">
+                <div class="context-btn" title="Opacity" style="gap: 4px;">
+                    <i class="fas fa-circle-half-stroke"></i>
+                    <input type="range" id="ctxOpacitySlider" min="0.1" max="1" step="0.05" value="1" style="width: 60px; accent-color: var(--qovrix-teal);" oninput="editor.updateProperty('opacity', parseFloat(this.value))">
+                </div>
+
+                <button class="context-btn" onclick="toggleInspectorPanel()" title="Position & Alignment Inspector">
+                    <i class="fas fa-ruler-combined"></i> Position
+                </button>
+
+                <button class="context-btn" onclick="editor.duplicateElement()" title="Duplicate (Ctrl+D)">
+                    <i class="fas fa-copy"></i>
+                </button>
+
+                <button class="context-btn" onclick="editor.toggleLock()" title="Lock Element">
+                    <i class="fas fa-lock" id="ctxLockIcon"></i>
+                </button>
+
+                <button class="context-btn" style="color: #ef4444;" onclick="editor.deleteElement()" title="Delete Element (Del)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- QOVRIXs Background Context Controls (When nothing selected) -->
+        <div id="canvasContextControls" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-weight: 600; color: var(--text-sub);">QOVRIXs Background:</span>
+                <div class="color-circle-btn" id="canvasBgPreview" style="background: #ffffff;" title="QOVRIXs Background Color">
+                    <input type="color" id="canvasBgInput" onchange="editor.setQOVRIXsBackground(this.value)">
+                </div>
+
+                <!-- Fast preset color swatches -->
+                <div style="display: flex; gap: 4px;">
+                    <div onclick="editor.setQOVRIXsBackground('#0e131f')" style="width: 20px; height: 20px; border-radius: 4px; background: #0e131f; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Midnight Dark"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#1e3a8a')" style="width: 20px; height: 20px; border-radius: 4px; background: #1e3a8a; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Deep Royal"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#7c2d12')" style="width: 20px; height: 20px; border-radius: 4px; background: #7c2d12; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Warm Terracotta"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#042f2e')" style="width: 20px; height: 20px; border-radius: 4px; background: #042f2e; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Emerald Teal"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#500724')" style="width: 20px; height: 20px; border-radius: 4px; background: #500724; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Crimson Rose"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#312e81')" style="width: 20px; height: 20px; border-radius: 4px; background: #312e81; cursor: pointer; border: 1px solid rgba(255,255,255,0.2);" title="Electric Indigo"></div>
+                    <div onclick="editor.setQOVRIXsBackground('#f8fafc')" style="width: 20px; height: 20px; border-radius: 4px; background: #f8fafc; cursor: pointer; border: 1px solid rgba(0,0,0,0.2);" title="Clean White"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11px; color: var(--text-dim);">Select any element on canvas to customize typography & colors</span>
+                <button class="context-btn" onclick="toggleInspectorPanel()" title="Toggle Inspector Drawer">
+                    <i class="fas fa-sliders-h"></i> QOVRIXs Sizing
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 3. WORKSPACE CORE -->
+    <div class="workspace">
+        
+        <!-- Left Slim Navigation Tabs -->
+        <nav class="side-nav">
+            <div class="nav-pill active" data-tab="templates" onclick="switchDrawerTab('templates', this)">
+                <i class="fas fa-layer-group"></i>
+                <span>Design</span>
+            </div>
+            <div class="nav-pill" data-tab="elements" onclick="switchDrawerTab('elements', this)">
+                <i class="fas fa-shapes"></i>
+                <span>Elements</span>
+            </div>
+            <div class="nav-pill" data-tab="text" onclick="switchDrawerTab('text', this)">
+                <i class="fas fa-font"></i>
+                <span>Text</span>
+            </div>
+            <div class="nav-pill" data-tab="uploads" onclick="switchDrawerTab('uploads', this)">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Uploads</span>
+            </div>
+            <div class="nav-pill" data-tab="photos" onclick="switchDrawerTab('photos', this)">
+                <i class="fas fa-images"></i>
+                <span>Photos</span>
+            </div>
+            <div class="nav-pill" data-tab="draw" onclick="switchDrawerTab('draw', this)">
+                <i class="fas fa-paint-brush"></i>
+                <span>Draw</span>
+            </div>
+            <div class="nav-pill" data-tab="brand" onclick="switchDrawerTab('brand', this)">
+                <i class="fas fa-briefcase"></i>
+                <span>Brand Kit</span>
+            </div>
+            <div class="nav-pill" data-tab="backgrounds" onclick="switchDrawerTab('backgrounds', this)">
+                <i class="fas fa-palette"></i>
+                <span>Styles</span>
+            </div>
+        </nav>
+
+        <!-- Secondary Slide-Out Drawer Panel -->
+        <aside class="drawer-panel" id="drawerPanel">
+            
+            <!-- TAB: TEMPLATES / DESIGN -->
+            <div class="tab-pane" id="pane-templates">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-layer-group" style="color: var(--qovrix-teal);"></i> Templates</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <div class="qovrix-search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search 1000+ templates..." oninput="filterTemplatesSearch(this.value)">
+                    </div>
+
+                    <div class="chips-scroll">
+                        <span class="filter-chip active" onclick="filterTemplatesCat('all', this)">All (110+)</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('youtube', this)">YouTube</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('instagram', this)">Instagram</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('business', this)">Business</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('food', this)">Food & Dining</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('gym', this)">Gym & Fitness</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('real-estate', this)">Real Estate</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('education', this)">Education</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('fashion', this)">Fashion</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('healthcare', this)">Health</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('events', this)">Events</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('travel', this)">Travel</span>
+                        <span class="filter-chip" onclick="filterTemplatesCat('sale', this)">Flash Sale</span>
+                    </div>
+
+                    <div class="templates-gallery" id="templatesContainer">
+                        <!-- Loaded via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: ELEMENTS -->
+            <div class="tab-pane" id="pane-elements" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-shapes" style="color: var(--qovrix-teal);"></i> Shapes & Graphics</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <span class="section-label">Geometric Shapes</span>
+                    <div class="elements-subgrid">
+                        <div class="elem-card-btn" onclick="editor.addShape('rectangle')">
+                            <i class="fas fa-square"></i>
+                            <span>Rectangle</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('rounded-rect')">
+                            <i class="far fa-square"></i>
+                            <span>Rounded</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('circle')">
+                            <i class="fas fa-circle"></i>
+                            <span>Circle</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('triangle')">
+                            <i class="fas fa-play" style="transform: rotate(-90deg);"></i>
+                            <span>Triangle</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('star')">
+                            <i class="fas fa-star"></i>
+                            <span>Star</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('heart')">
+                            <i class="fas fa-heart" style="color: #ec4899;"></i>
+                            <span>Heart</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('line')">
+                            <i class="fas fa-minus"></i>
+                            <span>Divider</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('arrow')">
+                            <i class="fas fa-arrow-right"></i>
+                            <span>Arrow</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addShape('badge')">
+                            <i class="fas fa-certificate" style="color: #f59e0b;"></i>
+                            <span>Badge</span>
+                        </div>
+                    </div>
+
+                    <span class="section-label" style="margin-top: 10px;">Promotional Stickers</span>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <div class="sticker-badge" style="background: #ef4444; color: white;" onclick="editor.addSticker('🔥 FLAT 50% OFF', '#ef4444', '#ffffff')">
+                            🔥 FLAT 50% OFF
+                        </div>
+                        <div class="sticker-badge" style="background: #f59e0b; color: #111827;" onclick="editor.addSticker('⚡ FLASH SALE', '#f59e0b', '#111827')">
+                            ⚡ FLASH SALE
+                        </div>
+                        <div class="sticker-badge" style="background: #10b981; color: white;" onclick="editor.addSticker('✔ 100% VERIFIED', '#10b981', '#ffffff')">
+                            ✔ 100% VERIFIED
+                        </div>
+                        <div class="sticker-badge" style="background: #8b5cf6; color: white;" onclick="editor.addSticker('⭐ LIMITED OFFER', '#8b5cf6', '#ffffff')">
+                            ⭐ LIMITED OFFER
+                        </div>
+                        <div class="sticker-badge" style="background: #06b6d4; color: white;" onclick="editor.addSticker('🚀 NEW ARRIVAL', '#06b6d4', '#ffffff')">
+                            🚀 NEW ARRIVAL
+                        </div>
+                        <div class="sticker-badge" style="background: #ec4899; color: white;" onclick="editor.addSticker('🎁 FREE GIFT', '#ec4899', '#ffffff')">
+                            🎁 FREE GIFT
+                        </div>
+                    </div>
+
+                    <span class="section-label" style="margin-top: 10px;">Social & Contact Badges</span>
+                    <div class="elements-subgrid">
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('instagram')">
+                            <i class="fab fa-instagram" style="color: #e1306c;"></i>
+                            <span>Instagram</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('facebook')">
+                            <i class="fab fa-facebook" style="color: #1877f2;"></i>
+                            <span>Facebook</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('youtube')">
+                            <i class="fab fa-youtube" style="color: #ff0000;"></i>
+                            <span>YouTube</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('whatsapp')">
+                            <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                            <span>WhatsApp</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('phone')">
+                            <i class="fas fa-phone-alt" style="color: #10b981;"></i>
+                            <span>Phone</span>
+                        </div>
+                        <div class="elem-card-btn" onclick="editor.addSocialIcon('location')">
+                            <i class="fas fa-map-marker-alt" style="color: #ef4444;"></i>
+                            <span>Location</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: TEXT -->
+            <div class="tab-pane" id="pane-text" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-font" style="color: var(--qovrix-teal);"></i> Text & Fonts</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <span class="section-label">Add Plain Text</span>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="std-input" style="height: 52px; font-size: 20px; font-weight: 800; text-align: left; cursor: pointer; color: white;" onclick="editor.addText('heading')">
+                            Add a Heading
+                        </button>
+                        <button class="std-input" style="height: 44px; font-size: 15px; font-weight: 600; text-align: left; cursor: pointer; color: #94a3b8;" onclick="editor.addText('subheading')">
+                            Add a Subheading
+                        </button>
+                        <button class="std-input" style="height: 38px; font-size: 13px; font-weight: 400; text-align: left; cursor: pointer; color: #64748b;" onclick="editor.addText('body')">
+                            Add a little bit of body text
+                        </button>
+                    </div>
+
+                    <span class="section-label" style="margin-top: 12px;">Stylish Text Combinations</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; cursor: pointer;" onclick="editor.addStyledTextCombo('neon')">
+                            <div style="font-family: 'Righteous'; font-size: 26px; color: #00c4cc; text-shadow: 0 0 10px rgba(0, 196, 204, 0.7);">NEON CYBER</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Modern Glowing Futuristic Heading</div>
+                        </div>
+
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; cursor: pointer;" onclick="editor.addStyledTextCombo('luxury')">
+                            <div style="font-family: 'Playfair Display'; font-style: italic; font-size: 24px; color: #fbbf24;">Luxury & Elegance</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Timeless Editorial & Couture Script</div>
+                        </div>
+
+                        <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; cursor: pointer;" onclick="editor.addStyledTextCombo('bold-sale')">
+                            <div style="font-family: 'Bebas Neue'; font-size: 32px; color: #ef4444; letter-spacing: 1px;">MEGA DISCOUNT SALE</div>
+                            <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">High Impact Promo Headline</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: UPLOADS -->
+            <div class="tab-pane" id="pane-uploads" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-cloud-upload-alt" style="color: var(--qovrix-teal);"></i> Upload Media</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <button class="qovrix-pill-btn btn-gradient-cta" style="width: 100%; height: 42px; justify-content: center; font-size: 14px;" onclick="document.getElementById('hiddenFileInput').click()">
+                        <i class="fas fa-upload"></i> Upload Files
+                    </button>
+                    <input type="file" id="hiddenFileInput" accept="image/*" style="display: none;" onchange="editor.handleImageUpload(event)">
+
+                    <span class="section-label" style="margin-top: 10px;">Your Uploaded Media</span>
+                    <div id="uploadsGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <!-- Uploaded thumbnails appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: PHOTOS (Unsplash / Stock Presets) -->
+            <div class="tab-pane" id="pane-photos" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-images" style="color: var(--qovrix-teal);"></i> Stock Photos</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <span class="section-label">Click photo to insert onto poster</span>
+                    <div id="stockPhotosGrid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <!-- Stock photos loaded by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: DRAW TOOL -->
+            <div class="tab-pane" id="pane-draw" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-paint-brush" style="color: var(--qovrix-teal);"></i> Draw & Brush</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <button class="qovrix-pill-btn" id="brushToggleBtn" style="width: 100%; justify-content: center; height: 38px;" onclick="editor.toggleBrushMode()">
+                        <i class="fas fa-pen"></i> Enable Brush Drawing
+                    </button>
+
+                    <div style="margin-top: 10px;">
+                        <span class="section-label">Brush Color</span>
+                        <div class="input-row">
+                            <input type="color" id="brushColor" value="#00c4cc" style="width: 40px; height: 36px; border: none; border-radius: 4px; cursor: pointer;">
+                            <input type="text" id="brushColorHex" class="std-input" value="#00c4cc">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <span class="section-label">Brush Width (px)</span>
+                        <div class="slider-wrapper">
+                            <input type="range" id="brushWidth" min="1" max="40" value="5" oninput="document.getElementById('brushVal').textContent = this.value + 'px'">
+                            <span class="slider-val" id="brushVal">5px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: BRAND KIT -->
+            <div class="tab-pane" id="pane-brand" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-briefcase" style="color: var(--qovrix-teal);"></i> Brand Identity</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <button class="qovrix-pill-btn btn-gradient-cta" style="width: 100%; height: 40px; justify-content: center;" onclick="editor.applyBrandProfileToQOVRIXs()">
+                        <i class="fas fa-magic"></i> Apply Brand to All Text
+                    </button>
+
+                    <span class="section-label" style="margin-top: 10px;">Brand Profile Settings</span>
+                    <input type="text" id="brandName" class="std-input" placeholder="Business Name">
+                    <input type="text" id="brandTagline" class="std-input" placeholder="Tagline">
+                    <input type="text" id="brandPhone" class="std-input" placeholder="Phone Number">
+                    <input type="text" id="brandWebsite" class="std-input" placeholder="Website">
+                    <input type="text" id="brandAddress" class="std-input" placeholder="Address">
+
+                    <button class="qovrix-pill-btn" style="width: 100%; justify-content: center;" onclick="saveCustomBrand()">
+                        <i class="fas fa-save"></i> Save Brand Kit
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: BACKGROUNDS & STYLES -->
+            <div class="tab-pane" id="pane-backgrounds" style="display: none;">
+                <div class="drawer-header">
+                    <span class="drawer-title"><i class="fas fa-palette" style="color: var(--qovrix-teal);"></i> QOVRIXs Styles & Gradients</span>
+                    <button class="drawer-close" onclick="closeDrawer()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drawer-body">
+                    <span class="section-label">Curated Designer Gradients</span>
+                    <div id="gradientsList" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                        <!-- Gradients rendered by JS -->
+                    </div>
+
+                    <span class="section-label" style="margin-top: 14px;">1-Click Harmonious Palettes</span>
+                    <div id="palettesList" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Palettes rendered by JS -->
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- 4. CANVAS STAGE -->
+        <main class="canvas-stage" id="canvasStage" onclick="editor.handleStageClick(event)">
+            <div class="canvas-frame" id="canvasFrame">
+                <canvas id="canvas" width="800" height="1000"></canvas>
+            </div>
+
+            <!-- QOVRIX Bottom Floating Zoom Bar -->
+            <div class="qovrix-bottom-bar">
+                <button class="bottom-icon-btn" onclick="editor.zoomOut()" title="Zoom Out (-)"><i class="fas fa-minus"></i></button>
+                <span id="zoomPercent" style="font-size: 12px; font-weight: 700; min-width: 42px; text-align: center;">100%</span>
+                <button class="bottom-icon-btn" onclick="editor.zoomIn()" title="Zoom In (+)"><i class="fas fa-plus"></i></button>
+                <div class="divider-v"></div>
+                <button class="bottom-icon-btn" onclick="editor.fitStage()" title="Fit to Screen"><i class="fas fa-compress-arrows-alt"></i></button>
+                <button class="bottom-icon-btn" onclick="editor.resetZoom()" title="Reset 100%"><i class="fas fa-expand"></i></button>
+            </div>
+        </main>
+
+        <!-- 5. RIGHT INSPECTOR DRAWER -->
+        <aside class="inspector-panel" id="inspectorPanel">
+            <div class="drawer-header">
+                <span class="drawer-title"><i class="fas fa-sliders-h" style="color: var(--qovrix-purple);"></i> Position & Transform</span>
+                <button class="drawer-close" onclick="toggleInspectorPanel()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="inspector-section">
+                <span class="section-label">QOVRIXs Dimensions (px)</span>
+                <div class="input-row">
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">Width</span>
+                        <input type="number" id="inspQOVRIXsW" class="std-input" value="800" onchange="editor.setCustomSize()">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">Height</span>
+                        <input type="number" id="inspQOVRIXsH" class="std-input" value="1000" onchange="editor.setCustomSize()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="inspector-section" id="elementTransformSection" style="display: none;">
+                <span class="section-label">Selected Element Transform</span>
+                <div class="input-row">
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">X</span>
+                        <input type="number" id="inspX" class="std-input" oninput="editor.updateProperty('x', parseInt(this.value)||0)">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">Y</span>
+                        <input type="number" id="inspY" class="std-input" oninput="editor.updateProperty('y', parseInt(this.value)||0)">
+                    </div>
+                </div>
+                <div class="input-row">
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">Width</span>
+                        <input type="number" id="inspW" class="std-input" oninput="editor.updateProperty('width', parseInt(this.value)||20)">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: var(--text-dim);">Height</span>
+                        <input type="number" id="inspH" class="std-input" oninput="editor.updateProperty('height', parseInt(this.value)||20)">
+                    </div>
+                </div>
+
+                <span class="section-label" style="margin-top: 12px;">Layer Stacking</span>
+                <div style="display: flex; gap: 8px;">
+                    <button class="qovrix-pill-btn" style="flex: 1; justify-content: center;" onclick="editor.moveLayer('up')"><i class="fas fa-arrow-up"></i> Forward</button>
+                    <button class="qovrix-pill-btn" style="flex: 1; justify-content: center;" onclick="editor.moveLayer('down')"><i class="fas fa-arrow-down"></i> Backward</button>
+                </div>
+
+                <span class="section-label" style="margin-top: 12px;">Snap Alignment</span>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('left')"><i class="fas fa-align-left"></i></button>
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('center-h')"><i class="fas fa-arrows-alt-h"></i></button>
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('right')"><i class="fas fa-align-right"></i></button>
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('top')"><i class="fas fa-arrow-up"></i></button>
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('center-v')"><i class="fas fa-arrows-alt-v"></i></button>
+                    <button class="qovrix-pill-btn" style="justify-content: center;" onclick="editor.alignElement('bottom')"><i class="fas fa-arrow-down"></i></button>
+                </div>
+            </div>
+
+            <div class="inspector-section">
+                <span class="section-label">Keyboard Cheatsheet</span>
+                <div style="font-size: 11px; color: var(--text-sub); line-height: 1.8;">
+                    <div><kbd style="background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px;">Del</kbd> Delete selected</div>
+                    <div><kbd style="background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px;">Ctrl+Z</kbd> Undo</div>
+                    <div><kbd style="background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px;">Ctrl+D</kbd> Duplicate</div>
+                    <div><kbd style="background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 3px;">Shift+Drag</kbd> Lock Ratio</div>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- AI TEXT MODAL -->
+    <div class="qovrix-modal-overlay" id="aiModal">
+        <div class="qovrix-modal">
+            <div class="modal-top">
+                <div style="font-weight: 800; font-size: 15px; color: white;"><i class="fas fa-magic" style="color: var(--qovrix-teal);"></i> AI Poster Copywriter</div>
+                <button class="drawer-close" onclick="closeAITextModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-content-area">
+                <span class="section-label">Your Business / Industry</span>
+                <select id="aiCatSelect" class="std-select" style="margin-bottom: 12px;">
+                    <option value="business">Corporate Business & Consulting</option>
+                    <option value="education">Coaching & School Education</option>
+                    <option value="restaurant">Food, Restaurant & Cafe</option>
+                    <option value="fitness">Gym & Fitness Transformation</option>
+                    <option value="fashion">Fashion & Clothing Store</option>
+                    <option value="realestate">Real Estate & Luxury Homes</option>
+                    <option value="salon">Salon, Beauty & Wellness Spa</option>
+                    <option value="travel">Travel Agency & Tours</option>
+                    <option value="events">Events, Party & Entertainment</option>
+                </select>
+
+                <button class="qovrix-pill-btn btn-gradient-cta" style="width: 100%; height: 38px; justify-content: center;" onclick="generateAICopy()">
+                    <i class="fas fa-sparkles"></i> Generate AI Headline Ideas
+                </button>
+
+                <div id="aiSuggestionsList" style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+                    <!-- AI suggestions inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT MODAL -->
+    <div class="qovrix-modal-overlay" id="exportModal">
+        <div class="qovrix-modal" style="max-width: 420px;">
+            <div class="modal-top">
+                <div style="font-weight: 800; font-size: 15px; color: white;"><i class="fas fa-download" style="color: var(--qovrix-purple);"></i> Download Poster</div>
+                <button class="drawer-close" onclick="closeExportModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-content-area">
+                <span class="section-label">File Format</span>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="qovrix-pill-btn" style="height: 48px; justify-content: flex-start; padding: 0 16px;" onclick="editor.exportImage('png')">
+                        <i class="fas fa-file-image" style="font-size: 18px; color: var(--qovrix-teal); margin-right: 10px;"></i>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 700;">PNG Image (Recommended)</div>
+                            <div style="font-size: 11px; color: var(--text-dim);">Best for social media, crystal clear 2x resolution</div>
+                        </div>
+                    </button>
+
+                    <button class="qovrix-pill-btn" style="height: 48px; justify-content: flex-start; padding: 0 16px;" onclick="editor.exportImage('jpg')">
+                        <i class="fas fa-file-image" style="font-size: 18px; color: #f59e0b; margin-right: 10px;"></i>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 700;">JPG Image</div>
+                            <div style="font-size: 11px; color: var(--text-dim);">Compact file size for quick sharing</div>
+                        </div>
+                    </button>
+
+                    <button class="qovrix-pill-btn" style="height: 48px; justify-content: flex-start; padding: 0 16px;" onclick="editor.exportPDF()">
+                        <i class="fas fa-file-pdf" style="font-size: 18px; color: #ef4444; margin-right: 10px;"></i>
+                        <div style="text-align: left;">
+                            <div style="font-weight: 700;">PDF Document (Standard)</div>
+                            <div style="font-size: 11px; color: var(--text-dim);">High quality document ready for printing</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEXT EFFECTS MODAL -->
+    <div class="qovrix-modal-overlay" id="textEffectsModal">
+        <div class="qovrix-modal" style="max-width: 440px;">
+            <div class="modal-top">
+                <div style="font-weight: 800; font-size: 15px; color: white;"><i class="fas fa-magic" style="color: var(--qovrix-teal);"></i> Text Effects</div>
+                <button class="drawer-close" onclick="closeTextEffectsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-content-area">
+                <span class="section-label">Select Text Style</span>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                    <button class="qovrix-pill-btn" style="height: 40px; justify-content: center;" onclick="editor.setTextEffect('none')">None</button>
+                    <button class="qovrix-pill-btn" style="height: 40px; justify-content: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);" onclick="editor.setTextEffect('shadow')">Shadow</button>
+                    <button class="qovrix-pill-btn" style="height: 40px; justify-content: center; color: #00c4cc; text-shadow: 0 0 8px #00c4cc;" onclick="editor.setTextEffect('neon')">Neon</button>
+                    <button class="qovrix-pill-btn" style="height: 40px; justify-content: center; -webkit-text-stroke: 1px #7d2ae8;" onclick="editor.setTextEffect('outline')">Hollow</button>
+                    <button class="qovrix-pill-btn" style="height: 40px; justify-content: center; background: #6366f1; color: white;" onclick="editor.setTextEffect('box')">Background</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer"></div>
+
+    <!-- External feature tools -->
+    <script src="js/magicResize.js"></script>
+    <script src="js/variationsEngine.js"></script>
+    <script src="js/brandKit.js"></script>
+    <script src="js/aiTextGenerator.js"></script>
+    <script src="js/autoColorPalette.js"></script>
+
+    <!-- Master QOVRIX Studio Logic -->
+    <script>
+        class QovrixEditorEngine {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.elements = [];
+                this.selectedElement = null;
+                this.elementId = 1;
+
+                // QOVRIXs Dimensions
+                this.canvasWidth = 800;
+                this.canvasHeight = 1000;
+                this.backgroundColor = '#ffffff';
+                this.zoom = 1;
+                this.grid = false;
+
+                // Dragging & 8-Handles
+                this.isDragging = false;
+                this.isResizing = false;
+                this.activeHandle = null;
+                this.dragOffset = { x: 0, y: 0 };
+                this.initialTransform = {};
+                this.handleSize = 8;
+
+                // Drawing Brush Mode
+                this.isBrushMode = false;
+                this.isDrawing = false;
+                this.currentBrushPath = [];
+
+                // History (Undo/Redo)
+                this.history = [];
+                this.historyStep = -1;
+
+                this.init();
+            }
+
+            init() {
+                this.setupQOVRIXs();
+                this.setupEvents();
+                this.setupStockPhotos();
+                this.setupGradientsAndPalettes();
+                this.loadInitialTemplates();
+
+                this.handlePageTransitions();
+                this.saveState();
+                this.fitStage();
+                this.render();
+            }
+
+            setupQOVRIXs() {
+                this.canvas.width = this.canvasWidth;
+                this.canvas.height = this.canvasHeight;
+                this.canvas.style.width = this.canvasWidth + 'px';
+                this.canvas.style.height = this.canvasHeight + 'px';
+
+                document.getElementById('canvasBgInput').value = this.backgroundColor;
+                document.getElementById('canvasBgPreview').style.background = this.backgroundColor;
+                document.getElementById('inspQOVRIXsW').value = this.canvasWidth;
+                document.getElementById('inspQOVRIXsH').value = this.canvasHeight;
+            }
+
+            setupEvents() {
+                this.canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+                window.addEventListener('mousemove', this.onMouseMove.bind(this));
+                window.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+                this.canvas.addEventListener('touchstart', this.onTouchStart.bind(this));
+                window.addEventListener('touchmove', this.onTouchMove.bind(this));
+                window.addEventListener('touchend', this.onTouchEnd.bind(this));
+
+                this.canvas.addEventListener('dblclick', this.onDoubleClick.bind(this));
+                window.addEventListener('keydown', this.onKeyDown.bind(this));
+                window.addEventListener('resize', () => this.fitStage());
+            }
+
+            // ============================================
+            // ELEMENT FACTORY
+            // ============================================
+            addElement(config) {
+                const el = {
+                    id: this.elementId++,
+                    type: config.type || 'text',
+                    x: config.x !== undefined ? config.x : Math.round(this.canvasWidth / 2 - 150),
+                    y: config.y !== undefined ? config.y : Math.round(this.canvasHeight / 2 - 35),
+                    width: config.width || 300,
+                    height: config.height || 70,
+                    text: config.text || 'Heading Text',
+                    fontSize: config.fontSize || 32,
+                    fontFamily: config.fontFamily || 'Montserrat',
+                    fontWeight: config.fontWeight || '700',
+                    color: config.color || '#111827',
+                    textAlign: config.textAlign || 'center',
+                    fontStyle: config.fontStyle || 'normal',
+                    textDecoration: config.textDecoration || 'none',
+                    isUppercase: false,
+                    backgroundColor: config.backgroundColor || 'transparent',
+                    borderColor: config.borderColor || 'transparent',
+                    borderWidth: config.borderWidth || 0,
+                    borderRadius: config.borderRadius || 0,
+                    shape: config.shape || 'rectangle',
+                    opacity: config.opacity !== undefined ? config.opacity : 1,
+                    effect: config.effect || 'none',
+                    filter: config.filter || 'none',
+                    flipH: 1,
+                    flipV: 1,
+                    img: config.img || null,
+                    path: config.path || null,
+                    locked: false,
+                    visible: true
+                };
+
+                this.elements.push(el);
+                this.selectElement(el);
+                this.saveState();
+                this.render();
+                return el;
+            }
+
+            addText(type) {
+                const b = this.getBusiness();
+                let text = 'Bold Heading';
+                let size = 46;
+                let weight = '800';
+                let font = 'Montserrat';
+                let color = this.backgroundColor === '#ffffff' ? '#111827' : '#ffffff';
+                let w = 500, h = 65;
+
+                if (type === 'heading') {
+                    text = b.name || 'YOUR BIG HEADLINE';
+                } else if (type === 'subheading') {
+                    text = b.tagline || 'Modern & inspiring tagline that captures attention';
+                    size = 24;
+                    weight = '600';
+                    font = 'Inter';
+                    color = this.backgroundColor === '#ffffff' ? '#475569' : '#94a3b8';
+                    h = 45;
+                } else if (type === 'body') {
+                    text = 'Share product details, opening offers or business announcements with clean typography.';
+                    size = 18;
+                    weight = '400';
+                    font = 'Inter';
+                    w = 440;
+                    h = 50;
+                }
+
+                this.addElement({
+                    type: 'text',
+                    text: text,
+                    fontSize: size,
+                    fontWeight: weight,
+                    fontFamily: font,
+                    color: color,
+                    width: w,
+                    height: h,
+                    x: Math.round(this.canvasWidth / 2 - w / 2),
+                    y: Math.round(this.canvasHeight / 2 - h / 2)
+                });
+            }
+
+            addStyledTextCombo(styleKey) {
+                if (styleKey === 'neon') {
+                    this.addElement({
+                        type: 'text',
+                        text: 'CYBER WEEKEND',
+                        fontSize: 50,
+                        fontFamily: 'Righteous',
+                        fontWeight: '400',
+                        color: '#00c4cc',
+                        effect: 'neon',
+                        width: 500,
+                        height: 70
+                    });
+                } else if (styleKey === 'luxury') {
+                    this.addElement({
+                        type: 'text',
+                        text: 'Autumn Collection',
+                        fontSize: 48,
+                        fontFamily: 'Playfair Display',
+                        fontStyle: 'italic',
+                        color: '#fbbf24',
+                        width: 520,
+                        height: 70
+                    });
+                } else if (styleKey === 'bold-sale') {
+                    this.addElement({
+                        type: 'text',
+                        text: 'FLAT 50% DISCOUNT',
+                        fontSize: 56,
+                        fontFamily: 'Bebas Neue',
+                        color: '#ef4444',
+                        width: 480,
+                        height: 65
+                    });
+                }
+            }
+
+            addShape(shapeName) {
+                let w = 180, h = 180;
+                let bg = '#7d2ae8';
+                let rad = 0;
+
+                if (shapeName === 'rectangle') { w = 260; h = 140; }
+                else if (shapeName === 'rounded-rect') { w = 260; h = 140; rad = 16; }
+                else if (shapeName === 'line') { w = 400; h = 4; bg = '#00c4cc'; }
+                else if (shapeName === 'badge') { w = 160; h = 160; bg = '#f59e0b'; }
+
+                this.addElement({
+                    type: 'shape',
+                    shape: shapeName,
+                    width: w,
+                    height: h,
+                    backgroundColor: bg,
+                    borderRadius: rad,
+                    x: Math.round(this.canvasWidth / 2 - w / 2),
+                    y: Math.round(this.canvasHeight / 2 - h / 2)
+                });
+            }
+
+            addSticker(text, bg, textCol) {
+                this.addElement({
+                    type: 'text',
+                    text: text,
+                    fontSize: 20,
+                    fontWeight: '800',
+                    fontFamily: 'Montserrat',
+                    color: textCol,
+                    backgroundColor: bg,
+                    borderRadius: 8,
+                    width: 240,
+                    height: 52,
+                    x: Math.round(this.canvasWidth / 2 - 120),
+                    y: Math.round(this.canvasHeight / 2 - 26)
+                });
+                this.showToast('Sticker added', 'success');
+            }
+
+            addSocialIcon(name) {
+                const b = this.getBusiness();
+                let txt = 'Follow us online';
+                let col = '#00c4cc';
+
+                if (name === 'instagram') { txt = '📸 @' + (b.name ? b.name.replace(/\s+/g,'').toLowerCase() : 'yourbrand'); col = '#e1306c'; }
+                else if (name === 'whatsapp') { txt = '💬 ' + (b.phone || '+91 98765 43210'); col = '#25d366'; }
+                else if (name === 'phone') { txt = '📞 Call: ' + (b.phone || '+91 98765 43210'); col = '#10b981'; }
+                else if (name === 'location') { txt = '📍 ' + (b.address || 'City Center Tower'); col = '#ef4444'; }
+                else if (name === 'youtube') { txt = '▶ YouTube / ' + b.name; col = '#ff0000'; }
+
+                this.addElement({
+                    type: 'text',
+                    text: txt,
+                    fontSize: 18,
+                    fontWeight: '700',
+                    fontFamily: 'Inter',
+                    color: col,
+                    width: 380,
+                    height: 38
+                });
+            }
+
+            handleImageUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const r = new FileReader();
+                r.onload = (evt) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width, h = img.height;
+                        const max = 400;
+                        if (w > max || h > max) {
+                            if (w > h) { h = Math.round((h * max) / w); w = max; }
+                            else { w = Math.round((w * max) / h); h = max; }
+                        }
+                        this.addElement({
+                            type: 'image',
+                            img: img,
+                            width: w,
+                            height: h
+                        });
+                        this.addUploadedThumb(evt.target.result);
+                        this.showToast('Image uploaded', 'success');
+                    };
+                    img.src = evt.target.result;
+                };
+                r.readAsDataURL(file);
+                e.target.value = '';
+            }
+
+            addUploadedThumb(src) {
+                const g = document.getElementById('uploadsGrid');
+                if (!g) return;
+                const d = document.createElement('div');
+                d.style.cssText = `height: 75px; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); cursor: pointer; display: flex; align-items: center; justify-content: center;`;
+                d.innerHTML = `<img src="${src}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+                d.onclick = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        this.addElement({ type: 'image', img: img, width: Math.min(300, img.width), height: Math.min(300, img.height) });
+                    };
+                    img.src = src;
+                };
+                g.prepend(d);
+            }
+
+            // Brush Drawing Mode
+            toggleBrushMode() {
+                this.isBrushMode = !this.isBrushMode;
+                const btn = document.getElementById('brushToggleBtn');
+                btn.classList.toggle('active', this.isBrushMode);
+                btn.innerHTML = this.isBrushMode ? '<i class="fas fa-check"></i> Brush Active (Draw on QOVRIXs)' : '<i class="fas fa-pen"></i> Enable Brush Drawing';
+                this.canvas.style.cursor = this.isBrushMode ? 'crosshair' : 'default';
+                this.showToast(this.isBrushMode ? 'Brush drawing enabled' : 'Brush mode turned off', 'info');
+            }
+
+            // ============================================
+            // SELECTION & PROPERTY UPDATES
+            // ============================================
+            selectElement(el) {
+                this.selectedElement = el;
+                this.updateContextToolbar();
+                this.render();
+            }
+
+            deselectElement() {
+                this.selectedElement = null;
+                this.updateContextToolbar();
+                this.render();
+            }
+
+            updateProperty(prop, val) {
+                if (!this.selectedElement || this.selectedElement.locked) return;
+                this.selectedElement[prop] = val;
+                this.render();
+                this.saveState();
+            }
+
+            toggleStyle(style) {
+                if (!this.selectedElement || this.selectedElement.type !== 'text') return;
+                if (style === 'bold') {
+                    const b = this.selectedElement.fontWeight === 'bold' || parseInt(this.selectedElement.fontWeight) >= 700;
+                    this.selectedElement.fontWeight = b ? '400' : '700';
+                } else if (style === 'italic') {
+                    this.selectedElement.fontStyle = this.selectedElement.fontStyle === 'italic' ? 'normal' : 'italic';
+                } else if (style === 'underline') {
+                    this.selectedElement.textDecoration = this.selectedElement.textDecoration === 'underline' ? 'none' : 'underline';
+                }
+                this.updateContextToolbar();
+                this.render();
+                this.saveState();
+            }
+
+            toggleUppercase() {
+                if (!this.selectedElement || this.selectedElement.type !== 'text') return;
+                this.selectedElement.isUppercase = !this.selectedElement.isUppercase;
+                if (this.selectedElement.isUppercase) {
+                    this.selectedElement.text = this.selectedElement.text.toUpperCase();
+                } else {
+                    this.selectedElement.text = this.selectedElement.text.charAt(0).toUpperCase() + this.selectedElement.text.slice(1).toLowerCase();
+                }
+                this.render();
+                this.saveState();
+            }
+
+            stepFontSize(delta) {
+                if (!this.selectedElement || this.selectedElement.type !== 'text') return;
+                const cur = this.selectedElement.fontSize || 24;
+                const next = Math.max(8, Math.min(200, cur + delta));
+                this.selectedElement.fontSize = next;
+                document.getElementById('ctxFontSize').value = next;
+                this.render();
+                this.saveState();
+            }
+
+            setTextEffect(eff) {
+                if (!this.selectedElement || this.selectedElement.type !== 'text') return;
+                this.selectedElement.effect = eff;
+                this.render();
+                this.saveState();
+                closeTextEffectsModal();
+                this.showToast('Text effect applied: ' + eff, 'success');
+            }
+
+            flipElement(axis) {
+                if (!this.selectedElement) return;
+                if (axis === 'h') this.selectedElement.flipH = (this.selectedElement.flipH || 1) * -1;
+                if (axis === 'v') this.selectedElement.flipV = (this.selectedElement.flipV || 1) * -1;
+                this.render();
+                this.saveState();
+            }
+
+            updateContextToolbar() {
+                const elContext = document.getElementById('elementContextControls');
+                const canvasContext = document.getElementById('canvasContextControls');
+                const textOpts = document.getElementById('ctxTextOptions');
+                const shapeOpts = document.getElementById('ctxShapeOptions');
+                const imgOpts = document.getElementById('ctxImageOptions');
+                const transformSec = document.getElementById('elementTransformSection');
+
+                if (!this.selectedElement) {
+                    elContext.style.display = 'none';
+                    canvasContext.style.display = 'flex';
+                    if (transformSec) transformSec.style.display = 'none';
+                    return;
+                }
+
+                canvasContext.style.display = 'none';
+                elContext.style.display = 'flex';
+                if (transformSec) transformSec.style.display = 'block';
+
+                document.getElementById('ctxTypeBadge').textContent = this.selectedElement.type.toUpperCase();
+                document.getElementById('ctxOpacitySlider').value = this.selectedElement.opacity !== undefined ? this.selectedElement.opacity : 1;
+                document.getElementById('ctxLockIcon').className = this.selectedElement.locked ? 'fas fa-lock' : 'fas fa-unlock';
+
+                // Fill transform inputs
+                document.getElementById('inspX').value = Math.round(this.selectedElement.x);
+                document.getElementById('inspY').value = Math.round(this.selectedElement.y);
+                document.getElementById('inspW').value = Math.round(this.selectedElement.width);
+                document.getElementById('inspH').value = Math.round(this.selectedElement.height);
+
+                if (this.selectedElement.type === 'text') {
+                    textOpts.style.display = 'flex';
+                    shapeOpts.style.display = 'none';
+                    imgOpts.style.display = 'none';
+
+                    document.getElementById('ctxFontFamily').value = this.selectedElement.fontFamily || 'Montserrat';
+                    document.getElementById('ctxFontSize').value = this.selectedElement.fontSize || 28;
+                    document.getElementById('ctxColorInput').value = this.selectedElement.color || '#ffffff';
+                    document.getElementById('ctxColorPreview').style.background = this.selectedElement.color || '#ffffff';
+
+                    const isBold = this.selectedElement.fontWeight === 'bold' || parseInt(this.selectedElement.fontWeight) >= 700;
+                    document.getElementById('ctxBoldBtn').classList.toggle('active', isBold);
+                    document.getElementById('ctxItalicBtn').classList.toggle('active', this.selectedElement.fontStyle === 'italic');
+                    document.getElementById('ctxUnderlineBtn').classList.toggle('active', this.selectedElement.textDecoration === 'underline');
+
+                } else if (this.selectedElement.type === 'shape') {
+                    textOpts.style.display = 'none';
+                    shapeOpts.style.display = 'flex';
+                    imgOpts.style.display = 'none';
+
+                    document.getElementById('ctxFillInput').value = this.selectedElement.backgroundColor || '#7d2ae8';
+                    document.getElementById('ctxFillPreview').style.background = this.selectedElement.backgroundColor || '#7d2ae8';
+                    document.getElementById('ctxBorderInput').value = this.selectedElement.borderColor || '#ffffff';
+                    document.getElementById('ctxBorderPreview').style.background = this.selectedElement.borderColor || '#ffffff';
+                    document.getElementById('ctxBorderWidth').value = this.selectedElement.borderWidth || 0;
+                    document.getElementById('ctxRadius').value = this.selectedElement.borderRadius || 0;
+
+                } else if (this.selectedElement.type === 'image') {
+                    textOpts.style.display = 'none';
+                    shapeOpts.style.display = 'none';
+                    imgOpts.style.display = 'flex';
+                    document.getElementById('ctxImageFilter').value = this.selectedElement.filter || 'none';
+                }
+            }
+
+            alignElement(type) {
+                if (!this.selectedElement) return;
+                const el = this.selectedElement;
+                if (type === 'left') el.x = 20;
+                else if (type === 'center-h') el.x = Math.round((this.canvasWidth - el.width) / 2);
+                else if (type === 'right') el.x = this.canvasWidth - el.width - 20;
+                else if (type === 'top') el.y = 20;
+                else if (type === 'center-v') el.y = Math.round((this.canvasHeight - el.height) / 2);
+                else if (type === 'bottom') el.y = this.canvasHeight - el.height - 20;
+
+                this.updateContextToolbar();
+                this.render();
+                this.saveState();
+            }
+
+            moveLayer(dir) {
+                if (!this.selectedElement) return;
+                const i = this.elements.indexOf(this.selectedElement);
+                if (i < 0) return;
+                if (dir === 'up' && i < this.elements.length - 1) {
+                    const t = this.elements[i]; this.elements[i] = this.elements[i + 1]; this.elements[i + 1] = t;
+                } else if (dir === 'down' && i > 0) {
+                    const t = this.elements[i]; this.elements[i] = this.elements[i - 1]; this.elements[i - 1] = t;
+                }
+                this.render();
+                this.saveState();
+            }
+
+            toggleLock() {
+                if (!this.selectedElement) return;
+                this.selectedElement.locked = !this.selectedElement.locked;
+                this.updateContextToolbar();
+                this.render();
+                this.showToast(this.selectedElement.locked ? 'Element locked' : 'Element unlocked', 'info');
+            }
+
+            deleteElement() {
+                if (!this.selectedElement) return;
+                const i = this.elements.indexOf(this.selectedElement);
+                if (i >= 0) {
+                    this.elements.splice(i, 1);
+                    this.selectedElement = null;
+                    this.updateContextToolbar();
+                    this.render();
+                    this.saveState();
+                    this.showToast('Element deleted', 'info');
+                }
+            }
+
+            duplicateElement() {
+                if (!this.selectedElement) return;
+                const clone = JSON.parse(JSON.stringify(this.selectedElement));
+                clone.id = this.elementId++;
+                clone.x += 24;
+                clone.y += 24;
+                if (this.selectedElement.img) clone.img = this.selectedElement.img;
+                this.elements.push(clone);
+                this.selectElement(clone);
+                this.saveState();
+                this.render();
+                this.showToast('Element duplicated', 'success');
+            }
+
+            // ============================================
+            // CANVAS RENDERING & DRAWING
+            // ============================================
+            render() {
+                this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+                // Background
+                if (this.backgroundColor.startsWith('linear-gradient')) {
+                    // Extract colors or render gradient
+                    const g = this.ctx.createLinearGradient(0, 0, this.canvasWidth, this.canvasHeight);
+                    const hexMatches = this.backgroundColor.match(/#[0-9a-fA-F]{3,6}/g);
+                    if (hexMatches && hexMatches.length >= 2) {
+                        g.addColorStop(0, hexMatches[0]);
+                        g.addColorStop(1, hexMatches[1]);
+                        this.ctx.fillStyle = g;
+                    } else {
+                        this.ctx.fillStyle = '#ffffff';
+                    }
+                } else {
+                    this.ctx.fillStyle = this.backgroundColor;
+                }
+                this.ctx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+                // Grid
+                if (this.grid) {
+                    this.drawGrid();
+                }
+
+                // Render Elements
+                for (const el of this.elements) {
+                    if (el.visible === false) continue;
+                    this.ctx.save();
+                    this.renderElement(this.ctx, el);
+                    this.ctx.restore();
+                }
+
+                // Render current brush path if drawing
+                if (this.isDrawing && this.currentBrushPath.length > 1) {
+                    this.ctx.save();
+                    this.ctx.strokeStyle = document.getElementById('brushColor').value;
+                    this.ctx.lineWidth = parseInt(document.getElementById('brushWidth').value) || 5;
+                    this.ctx.lineCap = 'round';
+                    this.ctx.lineJoin = 'round';
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(this.currentBrushPath[0].x, this.currentBrushPath[0].y);
+                    for (let k = 1; k < this.currentBrushPath.length; k++) {
+                        this.ctx.lineTo(this.currentBrushPath[k].x, this.currentBrushPath[k].y);
+                    }
+                    this.ctx.stroke();
+                    this.ctx.restore();
+                }
+
+                // Selection Box & 8 Handles
+                if (this.selectedElement) {
+                    this.drawSelectionBox(this.selectedElement);
+                }
+            }
+
+            drawGrid() {
+                this.ctx.save();
+                this.ctx.strokeStyle = 'rgba(100, 116, 139, 0.18)';
+                this.ctx.lineWidth = 1;
+                const s = 40;
+                for (let x = 0; x < this.canvasWidth; x += s) {
+                    this.ctx.beginPath(); this.ctx.moveTo(x, 0); this.ctx.lineTo(x, this.canvasHeight); this.ctx.stroke();
+                }
+                for (let y = 0; y < this.canvasHeight; y += s) {
+                    this.ctx.beginPath(); this.ctx.moveTo(0, y); this.ctx.lineTo(this.canvasWidth, y); this.ctx.stroke();
+                }
+                this.ctx.restore();
+            }
+
+            renderElement(ctx, el) {
+                if (el.opacity !== undefined && el.opacity < 1) {
+                    ctx.globalAlpha = el.opacity;
+                }
+
+                // Center for flip transform
+                const cx = el.x + el.width / 2;
+                const cy = el.y + el.height / 2;
+                ctx.translate(cx, cy);
+                ctx.scale(el.flipH || 1, el.flipV || 1);
+                ctx.translate(-cx, -cy);
+
+                if (el.type === 'text') {
+                    // Optional background highlight
+                    if (el.backgroundColor && el.backgroundColor !== 'transparent') {
+                        ctx.fillStyle = el.backgroundColor;
+                        if (el.borderRadius > 0) {
+                            this.roundRect(ctx, el.x, el.y, el.width, el.height, el.borderRadius, true, false);
+                        } else {
+                            ctx.fillRect(el.x, el.y, el.width, el.height);
+                        }
+                    }
+
+                    // Effects
+                    if (el.effect === 'shadow') {
+                        ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+                        ctx.shadowOffsetX = 3;
+                        ctx.shadowOffsetY = 3;
+                        ctx.shadowBlur = 6;
+                    } else if (el.effect === 'neon') {
+                        ctx.shadowColor = el.color || '#00c4cc';
+                        ctx.shadowOffsetX = 0;
+                        ctx.shadowOffsetY = 0;
+                        ctx.shadowBlur = 14;
+                    }
+
+                    ctx.font = `${el.fontStyle || 'normal'} ${el.fontWeight || '700'} ${el.fontSize || 28}px ${el.fontFamily || 'Montserrat'}`;
+                    ctx.fillStyle = el.color || '#ffffff';
+                    ctx.textBaseline = 'middle';
+                    ctx.textAlign = el.textAlign || 'center';
+
+                    let tx = el.x + el.width / 2;
+                    if (el.textAlign === 'left') tx = el.x + 12;
+                    if (el.textAlign === 'right') tx = el.x + el.width - 12;
+                    const ty = el.y + el.height / 2;
+
+                    const lines = String(el.text || '').split('\n');
+                    const lh = el.fontSize * 1.25;
+                    const totalH = lines.length * lh;
+                    const startY = ty - totalH / 2 + lh / 2;
+
+                    lines.forEach((line, i) => {
+                        if (el.effect === 'outline') {
+                            ctx.strokeStyle = el.color || '#7d2ae8';
+                            ctx.lineWidth = 2;
+                            ctx.strokeText(line, tx, startY + i * lh);
+                        } else {
+                            ctx.fillText(line, tx, startY + i * lh);
+                        }
+                    });
+
+                } else if (el.type === 'shape') {
+                    ctx.fillStyle = el.backgroundColor || '#7d2ae8';
+                    ctx.strokeStyle = el.borderColor || 'transparent';
+                    ctx.lineWidth = el.borderWidth || 0;
+                    const s = el.shape || 'rectangle';
+
+                    if (s === 'circle') {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, Math.min(el.width, el.height) / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        if (el.borderWidth > 0) ctx.stroke();
+                    } else if (s === 'triangle') {
+                        ctx.beginPath();
+                        ctx.moveTo(cx, el.y);
+                        ctx.lineTo(el.x + el.width, el.y + el.height);
+                        ctx.lineTo(el.x, el.y + el.height);
+                        ctx.closePath();
+                        ctx.fill();
+                        if (el.borderWidth > 0) ctx.stroke();
+                    } else if (s === 'star') {
+                        this.drawStar(ctx, cx, cy, 5, el.width / 2, el.width / 4);
+                        ctx.fill();
+                        if (el.borderWidth > 0) ctx.stroke();
+                    } else if (s === 'heart') {
+                        this.drawHeart(ctx, el.x, el.y, el.width, el.height);
+                        ctx.fill();
+                    } else if (s === 'arrow') {
+                        this.drawArrow(ctx, el.x, el.y, el.width, el.height);
+                        ctx.fill();
+                    } else if (s === 'rounded-rect' || (el.borderRadius && el.borderRadius > 0)) {
+                        this.roundRect(ctx, el.x, el.y, el.width, el.height, el.borderRadius || 12, true, el.borderWidth > 0);
+                    } else {
+                        ctx.fillRect(el.x, el.y, el.width, el.height);
+                        if (el.borderWidth > 0) ctx.strokeRect(el.x, el.y, el.width, el.height);
+                    }
+
+                } else if (el.type === 'image') {
+                    if (el.img && el.img.complete && el.img.naturalWidth > 0) {
+                        if (el.filter && el.filter !== 'none') ctx.filter = el.filter;
+                        ctx.drawImage(el.img, el.x, el.y, el.width, el.height);
+                        ctx.filter = 'none';
+                    } else if (el.src && !el._loadingImg) {
+                        el._loadingImg = true;
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            el.img = img;
+                            el._loadingImg = false;
+                            this.render();
+                        };
+                        img.onerror = () => {
+                            el._loadingImg = false;
+                        };
+                        img.src = el.src;
+                    }
+
+                } else if (el.type === 'brush' && el.path && el.path.length > 1) {
+                    ctx.strokeStyle = el.color || '#00c4cc';
+                    ctx.lineWidth = el.lineWidth || 5;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(el.path[0].x, el.path[0].y);
+                    for (let k = 1; k < el.path.length; k++) {
+                        ctx.lineTo(el.path[k].x, el.path[k].y);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            drawSelectionBox(el) {
+                this.ctx.save();
+                this.ctx.strokeStyle = '#00c4cc';
+                this.ctx.lineWidth = 2;
+                this.ctx.strokeRect(el.x, el.y, el.width, el.height);
+
+                // 4 Corner handles
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.strokeStyle = '#00c4cc';
+                this.ctx.lineWidth = 2;
+
+                const handles = this.getHandles(el);
+                for (const h of Object.values(handles)) {
+                    this.ctx.fillRect(h.x - this.handleSize / 2, h.y - this.handleSize / 2, this.handleSize, this.handleSize);
+                    this.ctx.strokeRect(h.x - this.handleSize / 2, h.y - this.handleSize / 2, this.handleSize, this.handleSize);
+                }
+                this.ctx.restore();
+            }
+
+            getHandles(el) {
+                return {
+                    nw: { x: el.x, y: el.y, cursor: 'nwse-resize' },
+                    ne: { x: el.x + el.width, y: el.y, cursor: 'nesw-resize' },
+                    se: { x: el.x + el.width, y: el.y + el.height, cursor: 'nwse-resize' },
+                    sw: { x: el.x, y: el.y + el.height, cursor: 'nesw-resize' }
+                };
+            }
+
+            roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+                ctx.beginPath();
+                ctx.moveTo(x + radius, y);
+                ctx.lineTo(x + width - radius, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                ctx.lineTo(x + width, y + height - radius);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+                ctx.lineTo(x + radius, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                ctx.lineTo(x, y + radius);
+                ctx.quadraticCurveTo(x, y, x + radius, y);
+                ctx.closePath();
+                if (fill) ctx.fill();
+                if (stroke) ctx.stroke();
+            }
+
+            drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+                let rot = (Math.PI / 2) * 3;
+                let x = cx, y = cy;
+                const step = Math.PI / spikes;
+                ctx.beginPath();
+                ctx.moveTo(cx, cy - outerRadius);
+                for (let i = 0; i < spikes; i++) {
+                    x = cx + Math.cos(rot) * outerRadius; y = cy + Math.sin(rot) * outerRadius; ctx.lineTo(x, y); rot += step;
+                    x = cx + Math.cos(rot) * innerRadius; y = cy + Math.sin(rot) * innerRadius; ctx.lineTo(x, y); rot += step;
+                }
+                ctx.lineTo(cx, cy - outerRadius);
+                ctx.closePath();
+            }
+
+            drawHeart(ctx, x, y, w, h) {
+                ctx.beginPath();
+                const topCurveHeight = h * 0.3;
+                ctx.moveTo(x + w / 2, y + h);
+                ctx.bezierCurveTo(x, y + h * 0.6, x, y, x + w / 2, y + topCurveHeight);
+                ctx.bezierCurveTo(x + w, y, x + w, y + h * 0.6, x + w / 2, y + h);
+                ctx.closePath();
+            }
+
+            drawArrow(ctx, x, y, w, h) {
+                ctx.beginPath();
+                const hw = h / 2;
+                ctx.moveTo(x, y + hw * 0.6);
+                ctx.lineTo(x + w * 0.6, y + hw * 0.6);
+                ctx.lineTo(x + w * 0.6, y);
+                ctx.lineTo(x + w, y + hw);
+                ctx.lineTo(x + w * 0.6, y + h);
+                ctx.lineTo(x + w * 0.6, y + h - hw * 0.6);
+                ctx.lineTo(x, y + h - hw * 0.6);
+                ctx.closePath();
+            }
+
+            // ============================================
+            // MOUSE & TOUCH EVENTS
+            // ============================================
+            getPt(e) {
+                const rect = this.canvas.getBoundingClientRect();
+                const scaleX = this.canvas.width / rect.width;
+                const scaleY = this.canvas.height / rect.height;
+                const cx = e.touches ? e.touches[0].clientX : e.clientX;
+                const cy = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
+            }
+
+            onMouseDown(e) {
+                const pt = this.getPt(e);
+
+                // Brush Mode
+                if (this.isBrushMode) {
+                    this.isDrawing = true;
+                    this.currentBrushPath = [pt];
+                    return;
+                }
+
+                // Check Handles
+                if (this.selectedElement && !this.selectedElement.locked) {
+                    const handles = this.getHandles(this.selectedElement);
+                    for (const [k, h] of Object.entries(handles)) {
+                        if (Math.abs(pt.x - h.x) <= this.handleSize + 4 && Math.abs(pt.y - h.y) <= this.handleSize + 4) {
+                            this.isResizing = true;
+                            this.activeHandle = k;
+                            this.initialTransform = {
+                                x: this.selectedElement.x,
+                                y: this.selectedElement.y,
+                                w: this.selectedElement.width,
+                                h: this.selectedElement.height,
+                                mx: pt.x,
+                                my: pt.y
+                            };
+                            return;
+                        }
+                    }
+                }
+
+                // Check Elements (reverse loop)
+                let clicked = null;
+                for (let i = this.elements.length - 1; i >= 0; i--) {
+                    const el = this.elements[i];
+                    if (el.visible !== false && pt.x >= el.x && pt.x <= el.x + el.width && pt.y >= el.y && pt.y <= el.y + el.height) {
+                        clicked = el;
+                        break;
+                    }
+                }
+
+                if (clicked) {
+                    this.selectElement(clicked);
+                    if (!clicked.locked) {
+                        this.isDragging = true;
+                        this.dragOffset = { x: pt.x - clicked.x, y: pt.y - clicked.y };
+                    }
+                } else {
+                    this.deselectElement();
+                }
+            }
+
+            onMouseMove(e) {
+                if (this.isBrushMode && this.isDrawing) {
+                    const pt = this.getPt(e);
+                    this.currentBrushPath.push(pt);
+                    this.render();
+                    return;
+                }
+
+                if (!this.isDragging && !this.isResizing) {
+                    if (this.isBrushMode) {
+                        this.canvas.style.cursor = 'crosshair';
+                        return;
+                    }
+                    const pt = this.getPt(e);
+                    // Check handles
+                    if (this.selectedElement && !this.selectedElement.locked) {
+                        const handles = this.getHandles(this.selectedElement);
+                        for (const [k, h] of Object.entries(handles)) {
+                            if (Math.abs(pt.x - h.x) <= this.handleSize + 4 && Math.abs(pt.y - h.y) <= this.handleSize + 4) {
+                                this.canvas.style.cursor = h.cursor;
+                                return;
+                            }
+                        }
+                        if (pt.x >= this.selectedElement.x && pt.x <= this.selectedElement.x + this.selectedElement.width &&
+                            pt.y >= this.selectedElement.y && pt.y <= this.selectedElement.y + this.selectedElement.height) {
+                            this.canvas.style.cursor = 'move';
+                            return;
+                        }
+                    }
+                    // Check other elements
+                    let over = false;
+                    for (let i = this.elements.length - 1; i >= 0; i--) {
+                        const el = this.elements[i];
+                        if (el.visible !== false && pt.x >= el.x && pt.x <= el.x + el.width && pt.y >= el.y && pt.y <= el.y + el.height) {
+                            over = true;
+                            break;
+                        }
+                    }
+                    this.canvas.style.cursor = over ? 'pointer' : 'default';
+                    return;
+                }
+
+                const pt = this.getPt(e);
+
+                if (this.isDragging && this.selectedElement && !this.selectedElement.locked) {
+                    let nx = Math.round(pt.x - this.dragOffset.x);
+                    let ny = Math.round(pt.y - this.dragOffset.y);
+
+                    // Magnetic Center Snap
+                    const cx = Math.round((this.canvasWidth - this.selectedElement.width) / 2);
+                    const cy = Math.round((this.canvasHeight - this.selectedElement.height) / 2);
+                    if (Math.abs(nx - cx) < 8) nx = cx;
+                    if (Math.abs(ny - cy) < 8) ny = cy;
+
+                    this.selectedElement.x = nx;
+                    this.selectedElement.y = ny;
+                    this.updateContextToolbar();
+                    this.render();
+
+                } else if (this.isResizing && this.selectedElement && !this.selectedElement.locked) {
+                    const t = this.initialTransform;
+                    const dx = pt.x - t.mx;
+                    const dy = pt.y - t.my;
+
+                    if (this.activeHandle === 'se') {
+                        this.selectedElement.width = Math.max(30, Math.round(t.w + dx));
+                        this.selectedElement.height = Math.max(20, Math.round(t.h + dy));
+                    } else if (this.activeHandle === 'sw') {
+                        this.selectedElement.width = Math.max(30, Math.round(t.w - dx));
+                        this.selectedElement.height = Math.max(20, Math.round(t.h + dy));
+                        this.selectedElement.x = Math.round(t.x + dx);
+                    } else if (this.activeHandle === 'ne') {
+                        this.selectedElement.width = Math.max(30, Math.round(t.w + dx));
+                        this.selectedElement.height = Math.max(20, Math.round(t.h - dy));
+                        this.selectedElement.y = Math.round(t.y + dy);
+                    } else if (this.activeHandle === 'nw') {
+                        this.selectedElement.width = Math.max(30, Math.round(t.w - dx));
+                        this.selectedElement.height = Math.max(20, Math.round(t.h - dy));
+                        this.selectedElement.x = Math.round(t.x + dx);
+                        this.selectedElement.y = Math.round(t.y + dy);
+                    }
+
+                    this.updateContextToolbar();
+                    this.render();
+                }
+            }
+
+            onMouseUp() {
+                if (this.isBrushMode && this.isDrawing) {
+                    this.isDrawing = false;
+                    if (this.currentBrushPath.length > 1) {
+                        const xs = this.currentBrushPath.map(p => p.x);
+                        const ys = this.currentBrushPath.map(p => p.y);
+                        const minX = Math.min(...xs), maxX = Math.max(...xs);
+                        const minY = Math.min(...ys), maxY = Math.max(...ys);
+
+                        this.elements.push({
+                            id: this.elementId++,
+                            type: 'brush',
+                            path: this.currentBrushPath,
+                            color: document.getElementById('brushColor').value,
+                            lineWidth: parseInt(document.getElementById('brushWidth').value) || 5,
+                            x: minX,
+                            y: minY,
+                            width: maxX - minX,
+                            height: maxY - minY,
+                            visible: true,
+                            locked: false
+                        });
+                        this.saveState();
+                        this.render();
+                    }
+                    this.currentBrushPath = [];
+                    return;
+                }
+
+                if (this.isDragging || this.isResizing) {
+                    this.isDragging = false;
+                    this.isResizing = false;
+                    this.activeHandle = null;
+                    this.saveState();
+                }
+            }
+
+            onTouchStart(e) { if (e.touches.length === 1) this.onMouseDown(e); }
+            onTouchMove(e) { if (e.touches.length === 1) { e.preventDefault(); this.onMouseMove(e); } }
+            onTouchEnd() { this.onMouseUp(); }
+
+            onDoubleClick() {
+                if (this.selectedElement && this.selectedElement.type === 'text') {
+                    const txt = prompt('Edit Text:', this.selectedElement.text);
+                    if (txt !== null) {
+                        this.selectedElement.text = txt;
+                        this.updateContextToolbar();
+                        this.render();
+                        this.saveState();
+                    }
+                }
+            }
+
+            onKeyDown(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    this.deleteElement();
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {
+                    e.preventDefault();
+                    if (e.shiftKey) this.redo();
+                    else this.undo();
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) {
+                    e.preventDefault();
+                    this.redo();
+                } else if ((e.ctrlKey || e.metaKey) && (e.key === 'd' || e.key === 'D')) {
+                    e.preventDefault();
+                    this.duplicateElement();
+                } else if (e.key === 'Escape') {
+                    this.deselectElement();
+                } else if (this.selectedElement && !this.selectedElement.locked) {
+                    const step = e.shiftKey ? 10 : 2;
+                    if (e.key === 'ArrowLeft') { e.preventDefault(); this.selectedElement.x -= step; }
+                    if (e.key === 'ArrowRight') { e.preventDefault(); this.selectedElement.x += step; }
+                    if (e.key === 'ArrowUp') { e.preventDefault(); this.selectedElement.y -= step; }
+                    if (e.key === 'ArrowDown') { e.preventDefault(); this.selectedElement.y += step; }
+                    this.updateContextToolbar();
+                    this.render();
+                }
+            }
+
+            handleStageClick(e) {
+                if (e.target.id === 'canvasStage') {
+                    this.deselectElement();
+                }
+            }
+
+            // ============================================
+            // CANVAS SIZING & BACKGROUNDS
+            // ============================================
+            setQOVRIXsBackground(c) {
+                this.backgroundColor = c;
+                document.getElementById('canvasBgInput').value = c.startsWith('#') ? c : '#ffffff';
+                document.getElementById('canvasBgPreview').style.background = c;
+                this.render();
+                this.saveState();
+            }
+
+            setPresetDimensions(val) {
+                const [w, h] = val.split('x').map(Number);
+                this.setDimensions(w, h);
+            }
+
+            setCustomSize() {
+                const w = parseInt(document.getElementById('inspQOVRIXsW').value) || 800;
+                const h = parseInt(document.getElementById('inspQOVRIXsH').value) || 1000;
+                this.setDimensions(w, h);
+            }
+
+            setDimensions(w, h) {
+                this.canvasWidth = w;
+                this.canvasHeight = h;
+                this.setupQOVRIXs();
+                this.fitStage();
+                this.render();
+                this.saveState();
+                this.showToast(`QOVRIXs resized to ${w}×${h}px`, 'info');
+            }
+
+            toggleGrid() {
+                this.grid = !this.grid;
+                document.getElementById('gridBtn').classList.toggle('active', this.grid);
+                this.render();
+            }
+
+            // Zoom
+            setZoomLevel(l) {
+                this.zoom = Math.max(0.2, Math.min(3, l));
+                document.getElementById('canvasFrame').style.transform = `scale(${this.zoom})`;
+                document.getElementById('zoomPercent').textContent = `${Math.round(this.zoom * 100)}%`;
+            }
+
+            zoomIn() { this.setZoomLevel(this.zoom + 0.1); }
+            zoomOut() { this.setZoomLevel(this.zoom - 0.1); }
+            resetZoom() { this.setZoomLevel(1); }
+
+            fitStage() {
+                const stage = document.getElementById('canvasStage');
+                if (!stage) return;
+                const pad = 60;
+                const aw = Math.max(150, stage.clientWidth - pad);
+                const ah = Math.max(150, stage.clientHeight - pad);
+                const scale = Math.min(aw / this.canvasWidth, ah / this.canvasHeight);
+                this.setZoomLevel(Math.max(0.15, Math.round(scale * 100) / 100));
+            }
+
+            // ============================================
+            // TEMPLATES & BUSINESS PROFILES
+            // ============================================
+            async loadInitialTemplates() {
+                try {
+                    const res = await fetch('templates.json');
+                    const data = await res.json();
+                    this.templates = Array.isArray(data) ? data : (data.templates || []);
+                } catch(e) {
+                    if (window.SupabaseConfig && window.SupabaseConfig.FALLBACK_TEMPLATES) {
+                        this.templates = window.SupabaseConfig.FALLBACK_TEMPLATES;
+                    }
+                }
+                this.renderTemplates(this.templates);
+            }
+
+            renderTemplates(list) {
+                const c = document.getElementById('templatesContainer');
+                if (!c) return;
+                c.innerHTML = '';
+
+                list.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'tpl-card';
+                    card.innerHTML = `
+                        <div class="tpl-card-preview" style="background: ${t.bgColor || t.background || '#1e293b'};">
+                            <div>
+                                <div style="font-size: 13px; font-weight: 800;">${t.name}</div>
+                                <div style="font-size: 10px; opacity: 0.8; margin-top: 4px;">${t.width||800}×${t.height||1000}</div>
+                            </div>
+                        </div>
+                        <div class="tpl-card-meta">
+                            <span class="tpl-card-name">${t.name}</span>
+                            <span class="tpl-card-cat">${t.business_type || t.category || 'PRO'}</span>
+                        </div>
+                    `;
+                    card.onclick = () => this.loadTemplate(t);
+                    c.appendChild(card);
+                });
+            }
+
+            loadTemplate(t) {
+                if (!t) return;
+                const b = this.getBusiness();
+                this.canvasWidth = t.width || t.canvasWidth || 800;
+                this.canvasHeight = t.height || t.canvasHeight || 1000;
+                this.backgroundColor = t.bgColor || t.background || t.backgroundColor || '#ffffff';
+
+                document.getElementById('projectTitle').value = t.name || t.title || 'Custom Poster';
+                this.setupQOVRIXs();
+
+                this.elements = [];
+                this.selectedElement = null;
+
+                const rawElements = t.elements || (t.design_data && t.design_data.elements) || [];
+
+                rawElements.forEach(data => {
+                    let text = data.text || '';
+                    if (text.includes('{{')) {
+                        text = text
+                            .replace(/\{\{BUSINESS_NAME\}\}/g, b.name)
+                            .replace(/\{\{TAGLINE\}\}/g, b.tagline)
+                            .replace(/\{\{PHONE\}\}/g, b.phone)
+                            .replace(/\{\{WEBSITE\}\}/g, b.website)
+                            .replace(/\{\{EMAIL\}\}/g, b.email)
+                            .replace(/\{\{ADDRESS\}\}/g, b.address);
+                    }
+
+                    const el = {
+                        id: this.elementId++,
+                        type: data.type || (data.text ? 'text' : (data.src ? 'image' : 'shape')),
+                        x: data.x !== undefined ? data.x : 100,
+                        y: data.y !== undefined ? data.y : 100,
+                        width: data.width || 260,
+                        height: data.height || 50,
+                        text: text,
+                        fontSize: data.fontSize || 24,
+                        fontFamily: data.fontFamily || 'Montserrat',
+                        fontWeight: data.fontWeight || '700',
+                        fontStyle: data.fontStyle || 'normal',
+                        color: data.color || data.textColor || '#ffffff',
+                        textAlign: data.textAlign || 'center',
+                        backgroundColor: data.backgroundColor || data.fillColor || 'transparent',
+                        borderColor: data.borderColor || 'transparent',
+                        borderWidth: data.borderWidth || 0,
+                        borderRadius: data.borderRadius || 0,
+                        shape: data.shape || (data.shapeType === 'rect' ? 'rectangle' : data.shapeType) || 'rectangle',
+                        opacity: data.opacity !== undefined ? data.opacity : 1,
+                        flipH: data.flipH || 1,
+                        flipV: data.flipV || 1,
+                        effect: data.effect || 'none',
+                        src: data.src || data.url || '',
+                        path: data.path || null,
+                        lineWidth: data.lineWidth || 5,
+                        visible: data.visible !== false,
+                        locked: data.locked || false
+                    };
+
+                    if (el.type === 'image' && el.src) {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => this.render();
+                        img.src = el.src;
+                        el.img = img;
+                    }
+
+                    this.elements.push(el);
+                });
+
+                this.fitStage();
+                this.updateContextToolbar();
+                this.render();
+                this.saveState();
+                this.showToast(`Loaded: ${t.name || 'Template'}`, 'success');
+            }
+
+            handlePageTransitions() {
+                const params = new URLSearchParams(window.location.search);
+                const qId = params.get('id') || params.get('projectId');
+                const qTpl = params.get('template') || params.get('category');
+
+                const sel = localStorage.getItem('selectedTemplate');
+                if (sel) {
+                    try {
+                        this.loadTemplate(JSON.parse(sel));
+                        localStorage.removeItem('selectedTemplate');
+                        return;
+                    } catch(e) {}
+                }
+
+                const selId = localStorage.getItem('selectedTemplateId');
+                if (selId) {
+                    const f = this.templates.find(t => String(t.id) === String(selId) || t.name === selId);
+                    if (f) this.loadTemplate(f);
+                    localStorage.removeItem('selectedTemplateId');
+                    return;
+                }
+
+                const loadId = localStorage.getItem('loadDesignId') || sessionStorage.getItem('projectIdToLoad') || qId;
+                if (loadId) {
+                    this.loadSavedDesign(loadId);
+                    localStorage.removeItem('loadDesignId');
+                    sessionStorage.removeItem('projectIdToLoad');
+                    return;
+                }
+
+                if (qTpl) {
+                    const f = this.templates.find(t => String(t.id) === String(qTpl) || t.name.toLowerCase() === qTpl.toLowerCase() || (t.category && t.category.toLowerCase().includes(qTpl.toLowerCase())));
+                    if (f) {
+                        this.loadTemplate(f);
+                        return;
+                    }
+                }
+
+                if (this.elements.length === 0 && this.templates.length > 0) {
+                    this.loadTemplate(this.templates[0]);
+                }
+            }
+
+            async loadSavedDesign(id) {
+                const raw = localStorage.getItem('savedProjects');
+                if (raw) {
+                    try {
+                        const list = JSON.parse(raw);
+                        const item = list.find(p => String(p.id) === String(id));
+                        if (item) {
+                            this.loadTemplate(item);
+                            return;
+                        }
+                    } catch(e) {}
+                }
+
+                if (window.SupabaseConfig && window.SupabaseConfig.ProjectDB) {
+                    try {
+                        const item = await window.SupabaseConfig.ProjectDB.getProject(id);
+                        if (item) {
+                            this.loadTemplate(item);
+                            return;
+                        }
+                    } catch(e) {
+                        console.warn('Could not load project from Supabase:', e);
+                    }
+                }
+            }
+
+            getBusiness() {
+                const raw = localStorage.getItem('businessDetails');
+                if (raw) {
+                    try { return JSON.parse(raw); } catch(e) {}
+                }
+                return {
+                    name: 'QOVRIX Studio',
+                    tagline: 'Precision In Every Pixel',
+                    phone: '+91 98765 43210',
+                    email: 'hello@qovrix.com',
+                    website: 'www.qovrix.com',
+                    address: 'Innovation Park, Suite 400'
+                };
+            }
+
+            applyBrandProfileToQOVRIXs() {
+                const b = this.getBusiness();
+                this.elements.forEach(el => {
+                    if (el.type === 'text') {
+                        el.text = el.text
+                            .replace(/\{\{BUSINESS_NAME\}\}/g, b.name)
+                            .replace(/\{\{TAGLINE\}\}/g, b.tagline)
+                            .replace(/\{\{PHONE\}\}/g, b.phone)
+                            .replace(/\{\{WEBSITE\}\}/g, b.website)
+                            .replace(/\{\{EMAIL\}\}/g, b.email)
+                            .replace(/\{\{ADDRESS\}\}/g, b.address);
+                    }
+                });
+                this.render();
+                this.saveState();
+                this.showToast(`Applied ${b.name} profile to poster!`, 'success');
+            }
+
+            // ============================================
+            // SAVE & EXPORT (PNG, JPG, PDF)
+            // ============================================
+            saveProject() {
+                const title = document.getElementById('projectTitle').value.trim() || 'Untitled Poster';
+                const record = {
+                    name: title,
+                    backgroundColor: this.backgroundColor,
+                    background: this.backgroundColor,
+                    canvasWidth: this.canvasWidth,
+                    canvasHeight: this.canvasHeight,
+                    width: this.canvasWidth,
+                    height: this.canvasHeight,
+                    elements: this.elements
+                };
+
+                if (window.SupabaseConfig && window.SupabaseConfig.ProjectDB) {
+                    window.SupabaseConfig.ProjectDB.saveProject(record);
+                }
+                this.showToast(`Saved "${title}" to My Banners!`, 'success');
+            }
+
+            exportImage(fmt = 'png') {
+                try {
+                    const scale = 2; // Crisp 2x export
+                    const exp = document.createElement('canvas');
+                    exp.width = this.canvasWidth * scale;
+                    exp.height = this.canvasHeight * scale;
+                    const eCtx = exp.getContext('2d');
+                    eCtx.scale(scale, scale);
+
+                    // Background
+                    eCtx.fillStyle = this.backgroundColor;
+                    eCtx.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+
+                    this.elements.forEach(el => {
+                        if (el.visible !== false) {
+                            eCtx.save();
+                            this.renderElement(eCtx, el);
+                            eCtx.restore();
+                        }
+                    });
+
+                    const name = (document.getElementById('projectTitle').value || 'poster').replace(/\s+/g, '-').toLowerCase();
+
+                    if (fmt === 'png') {
+                        exp.toBlob(b => {
+                            const u = URL.createObjectURL(b);
+                            const a = document.createElement('a'); a.download = `${name}.png`; a.href = u; a.click();
+                            URL.revokeObjectURL(u);
+                            this.showToast('PNG image downloaded (High-Res 2x)!', 'success');
+                        }, 'image/png');
+                    } else {
+                        const u = exp.toDataURL('image/jpeg', 0.95);
+                        const a = document.createElement('a'); a.download = `${name}.jpg`; a.href = u; a.click();
+                        this.showToast('JPG image downloaded!', 'success');
+                    }
+                    closeExportModal();
+                } catch(err) {
+                    console.error('Export error:', err);
+                    this.showToast('Export failed: ' + err.message, 'error');
+                }
+            }
+
+            exportPDF() {
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const orientation = this.canvasWidth > this.canvasHeight ? 'l' : 'p';
+                    const pdf = new jsPDF({
+                        orientation: orientation,
+                        unit: 'px',
+                        format: [this.canvasWidth, this.canvasHeight]
+                    });
+
+                    const imgData = this.canvas.toDataURL('image/jpeg', 0.98);
+                    pdf.addImage(imgData, 'JPEG', 0, 0, this.canvasWidth, this.canvasHeight);
+                    const name = (document.getElementById('projectTitle').value || 'poster').replace(/\s+/g, '-').toLowerCase();
+                    pdf.save(`${name}.pdf`);
+                    this.showToast('PDF document downloaded!', 'success');
+                    closeExportModal();
+                } catch(err) {
+                    console.error('PDF error:', err);
+                    this.showToast('PDF export error', 'error');
+                }
+            }
+
+            togglePreview() {
+                this.deselectElement();
+                toggleEditorFullscreen();
+            }
+
+            // History
+            saveState() {
+                if (this.historyStep < this.history.length - 1) {
+                    this.history = this.history.slice(0, this.historyStep + 1);
+                }
+                const snap = JSON.stringify({
+                    elements: this.elements,
+                    backgroundColor: this.backgroundColor,
+                    canvasWidth: this.canvasWidth,
+                    canvasHeight: this.canvasHeight
+                });
+                this.history.push(snap);
+                if (this.history.length > 30) this.history.shift();
+                else this.historyStep++;
+            }
+
+            undo() {
+                if (this.historyStep > 0) {
+                    this.historyStep--;
+                    this.restoreState(this.history[this.historyStep]);
+                    this.showToast('Undo', 'info');
+                }
+            }
+
+            redo() {
+                if (this.historyStep < this.history.length - 1) {
+                    this.historyStep++;
+                    this.restoreState(this.history[this.historyStep]);
+                    this.showToast('Redo', 'info');
+                }
+            }
+
+            restoreState(json) {
+                const s = JSON.parse(json);
+                this.elements = s.elements || [];
+                this.backgroundColor = s.backgroundColor || '#ffffff';
+                this.canvasWidth = s.canvasWidth || 800;
+                this.canvasHeight = s.canvasHeight || 1000;
+                this.setupQOVRIXs();
+                this.updateContextToolbar();
+                this.render();
+            }
+
+            // Photos and Palettes
+            setupStockPhotos() {
+                const grid = document.getElementById('stockPhotosGrid');
+                if (!grid) return;
+                const photos = [
+                    { title: 'Modern Office', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=500&auto=format&fit=crop&q=60' },
+                    { title: 'Gourmet Food', url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500&auto=format&fit=crop&q=60' },
+                    { title: 'Fitness Gym', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=500&auto=format&fit=crop&q=60' },
+                    { title: 'Fashion Couture', url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=500&auto=format&fit=crop&q=60' },
+                    { title: 'Tech Innovation', url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60' },
+                    { title: 'Luxury Real Estate', url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=500&auto=format&fit=crop&q=60' }
+                ];
+                grid.innerHTML = '';
+                photos.forEach(p => {
+                    const card = document.createElement('div');
+                    card.style.cssText = `height: 85px; border-radius: 6px; overflow: hidden; background: #000; cursor: pointer; border: 1px solid var(--border-color); position: relative;`;
+                    card.innerHTML = `<img src="${p.url}" style="width: 100%; height: 100%; object-fit: cover;" title="${p.title}">`;
+                    card.onclick = () => {
+                        const img = new Image();
+                        img.crossOrigin = 'anonymous';
+                        img.onload = () => {
+                            this.addElement({ type: 'image', img: img, width: 340, height: Math.round((340 / img.width) * img.height) });
+                            this.showToast('Stock photo added!', 'success');
+                        };
+                        img.src = p.url;
+                    };
+                    grid.appendChild(card);
+                });
+            }
+
+            setupGradientsAndPalettes() {
+                const gradGrid = document.getElementById('gradientsList');
+                if (gradGrid) {
+                    const grads = [
+                        { name: 'Qovrix Aurora', css: 'linear-gradient(135deg, #00c4cc, #7d2ae8)' },
+                        { name: 'Sunset Glow', css: 'linear-gradient(135deg, #f59e0b, #ec4899)' },
+                        { name: 'Ocean Cyan', css: 'linear-gradient(135deg, #0284c7, #06b6d4)' },
+                        { name: 'Emerald Forest', css: 'linear-gradient(135deg, #059669, #10b981)' },
+                        { name: 'Velvet Plum', css: 'linear-gradient(135deg, #4c1d95, #7c3aed)' },
+                        { name: 'Ruby Blaze', css: 'linear-gradient(135deg, #991b1b, #ef4444)' },
+                        { name: 'Midnight Slate', css: 'linear-gradient(135deg, #0f172a, #1e293b)' },
+                        { name: 'Soft Cream', css: 'linear-gradient(135deg, #fef3c7, #fffbeb)' }
+                    ];
+                    gradGrid.innerHTML = '';
+                    grads.forEach(g => {
+                        const item = document.createElement('div');
+                        item.style.cssText = `height: 50px; border-radius: 6px; background: ${g.css}; cursor: pointer; border: 1px solid var(--border-color); display: flex; align-items: flex-end; padding: 4px 6px;`;
+                        item.innerHTML = `<span style="font-size: 10px; font-weight: 700; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">${g.name}</span>`;
+                        item.onclick = () => this.setQOVRIXsBackground(g.css);
+                        gradGrid.appendChild(item);
+                    });
+                }
+
+                const palList = document.getElementById('palettesList');
+                if (palList) {
+                    const pals = [
+                        { name: 'Qovrix Iconic', colors: ['#00c4cc', '#7d2ae8', '#ffffff', '#0e131f'] },
+                        { name: 'Sunset Tropic', colors: ['#f59e0b', '#ec4899', '#451a03', '#fffbeb'] },
+                        { name: 'Mint Emerald', colors: ['#10b981', '#042f2e', '#f0fdf4', '#fbbf24'] },
+                        { name: 'Royal Gold', colors: ['#1e3a8a', '#fbbf24', '#ffffff', '#172554'] }
+                    ];
+                    palList.innerHTML = '';
+                    pals.forEach(p => {
+                        const c = document.createElement('div');
+                        c.style.cssText = `background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 10px; cursor: pointer;`;
+                        c.innerHTML = `
+                            <div style="display: flex; height: 18px; border-radius: 4px; overflow: hidden; margin-bottom: 4px;">
+                                ${p.colors.map(col => `<div style="flex:1; background:${col};"></div>`).join('')}
+                            </div>
+                            <span style="font-size: 11px; font-weight: 600;">${p.name}</span>
+                        `;
+                        c.onclick = () => {
+                            this.setQOVRIXsBackground(p.colors[3]);
+                            this.elements.forEach(el => {
+                                if (el.type === 'text') {
+                                    el.color = (el.fontSize >= 32) ? p.colors[2] : p.colors[0];
+                                } else if (el.type === 'shape') {
+                                    el.backgroundColor = p.colors[1];
+                                }
+                            });
+                            this.render();
+                            this.saveState();
+                            this.showToast(`Applied ${p.name} palette!`, 'success');
+                        };
+                        palList.appendChild(c);
+                    });
+                }
+            }
+
+            showToast(msg, type = 'info') {
+                const con = document.getElementById('toastContainer');
+                if (!con) return;
+                const t = document.createElement('div');
+                t.className = `qovrix-toast ${type}`;
+                const ic = type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+                t.innerHTML = `<i class="fas ${ic}" style="color: var(--qovrix-teal);"></i> <span>${msg}</span>`;
+                con.appendChild(t);
+                setTimeout(() => {
+                    t.style.opacity = '0';
+                    t.style.transform = 'translateY(8px)';
+                    t.style.transition = 'all 0.25s';
+                    setTimeout(() => t.remove(), 250);
+                }, 2600);
+            }
+        }
+
+        // ============================================
+        // GLOBAL CONTROLS & UI HOOKS
+        // ============================================
+        let editor = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            editor = new QovrixEditorEngine();
+            window.editor = editor;
+
+            const b = editor.getBusiness();
+            document.getElementById('brandName').value = b.name || '';
+            document.getElementById('brandTagline').value = b.tagline || '';
+            document.getElementById('brandPhone').value = b.phone || '';
+            document.getElementById('brandWebsite').value = b.website || '';
+            document.getElementById('brandAddress').value = b.address || '';
+        });
+
+        // Theme Toggle (Dark Studio vs Light Studio)
+        function toggleTheme() {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            localStorage.setItem('appTheme', isLight ? 'light' : 'dark');
+            updateThemeVisuals(isLight);
+            editor.showToast(isLight ? 'Light Theme activated' : 'Dark Studio Theme activated', 'info');
+        }
+
+        function updateThemeVisuals(isLight) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Auto apply theme on startup
+        (function() {
+            const saved = localStorage.getItem('appTheme');
+            if (saved === 'light') {
+                document.body.classList.add('light-theme');
+                updateThemeVisuals(true);
+            }
+        })();
+
+        // Drawer Tabs
+        function switchDrawerTab(tabId, clickedBtn) {
+            document.querySelectorAll('.side-nav .nav-pill').forEach(p => p.classList.remove('active'));
+            if (clickedBtn) clickedBtn.classList.add('active');
+
+            const drawer = document.getElementById('drawerPanel');
+            drawer.classList.remove('collapsed');
+
+            document.querySelectorAll('.drawer-panel .tab-pane').forEach(p => p.style.display = 'none');
+            const pane = document.getElementById(`pane-${tabId}`);
+            if (pane) pane.style.display = 'block';
+        }
+
+        function closeDrawer() {
+            document.getElementById('drawerPanel').classList.add('collapsed');
+        }
+
+        function toggleInspectorPanel() {
+            document.getElementById('inspectorPanel').classList.toggle('collapsed');
+        }
+
+        function filterTemplatesSearch(val) {
+            const term = (val || '').toLowerCase().trim();
+            const filtered = editor.templates.filter(t => 
+                (t.name && t.name.toLowerCase().includes(term)) ||
+                (t.category && t.category.toLowerCase().includes(term)) ||
+                (t.business_type && t.business_type.toLowerCase().includes(term))
+            );
+            editor.renderTemplates(filtered);
+        }
+
+        function filterTemplatesCat(cat, chip) {
+            document.querySelectorAll('.chips-scroll .filter-chip').forEach(c => c.classList.remove('active'));
+            if (chip) chip.classList.add('active');
+
+            if (cat === 'all') {
+                editor.renderTemplates(editor.templates);
+            } else {
+                const target = cat.toLowerCase();
+                const filtered = editor.templates.filter(t => {
+                    const c = (t.category || '').toLowerCase();
+                    const b = (t.business_type || '').toLowerCase();
+                    const n = (t.name || '').toLowerCase();
+                    return c === target || b === target || c.includes(target) || b.includes(target) || n.includes(target);
+                });
+                editor.renderTemplates(filtered);
+            }
+        }
+
+        function saveCustomBrand() {
+            const b = {
+                name: document.getElementById('brandName').value.trim() || 'Your Brand',
+                tagline: document.getElementById('brandTagline').value.trim() || 'Your Tagline',
+                phone: document.getElementById('brandPhone').value.trim() || '',
+                website: document.getElementById('brandWebsite').value.trim() || '',
+                address: document.getElementById('brandAddress').value.trim() || ''
+            };
+            localStorage.setItem('businessDetails', JSON.stringify(b));
+            editor.showToast('Brand Kit saved!', 'success');
+        }
+
+        // Modals
+        function openAITextModal() { document.getElementById('aiModal').classList.add('active'); generateAICopy(); }
+        function closeAITextModal() { document.getElementById('aiModal').classList.remove('active'); }
+
+        function openExportModal() { document.getElementById('exportModal').classList.add('active'); }
+        function closeExportModal() { document.getElementById('exportModal').classList.remove('active'); }
+
+        function openTextEffectsModal() { document.getElementById('textEffectsModal').classList.add('active'); }
+        function closeTextEffectsModal() { document.getElementById('textEffectsModal').classList.remove('active'); }
+
+        function openMagicResizeModal() {
+            if (window.magicResizeUI && typeof window.magicResizeUI.open === 'function') {
+                window.magicResizeUI.open();
+            } else {
+                editor.showToast('Select standard presets from the top size dropdown!', 'info');
+            }
+        }
+
+        function openVariationsModal() {
+            if (window.variationsUI && typeof window.variationsUI.open === 'function') {
+                window.variationsUI.open();
+            } else {
+                switchDrawerTab('backgrounds', document.querySelector('[data-tab="backgrounds"]'));
+            }
+        }
+
+        // AI Copy database
+        const AI_DATABASE = {
+            business: [
+                { h: "Unlocking Next-Level Corporate Growth", s: "Data-Driven Strategy & Operations Excellence" },
+                { h: "Transforming Ideas into Market Leaders", s: "Empowering Innovative Enterprises Worldwide" }
+            ],
+            education: [
+                { h: "Admissions Open 2026 - 2027", s: "Expert Faculty • Small Batches • 100% Concept Clarity" },
+                { h: "Unlock Your Full Academic Potential", s: "Scholarship Test with Up to 100% Fee Waiver" }
+            ],
+            restaurant: [
+                { h: "Taste the Extraordinary Flavor", s: "Authentic Recipes Made Fresh Daily • Dine-in & Delivery" },
+                { h: "Flat 40% OFF Weekend Chef's Special", s: "Reserve Your Table or Order Online Today" }
+            ],
+            fitness: [
+                { h: "Transform Your Body & Mind", s: "Join the Elite Transformation Program Today" },
+                { h: "50% Discount on Annual Memberships", s: "Claim Your Free 3-Day Trial Pass" }
+            ],
+            fashion: [
+                { h: "New Season Collection Just Dropped", s: "Contemporary Streetwear & Timeless Elegance" },
+                { h: "Up to 50% OFF Festive Couture", s: "Handcrafted Luxury Designed to Make You Shine" }
+            ],
+            realestate: [
+                { h: "Your Dream Luxury Smart Home", s: "3 & 4 BHK Apartments with Private Sky Lounge" }
+            ],
+            salon: [
+                { h: "Rejuvenate, Relax and Glow", s: "Exclusive Spa, Hair & Skin Beauty Packages" }
+            ],
+            travel: [
+                { h: "Discover the World Beyond Limits", s: "All-Inclusive Holiday Packages with Guided Tours" }
+            ],
+            events: [
+                { h: "You Are Cordially Invited", s: "Live Music • Grand Dining • Cocktails & Dancing" }
+            ]
+        };
+
+        function generateAICopy() {
+            const cat = document.getElementById('aiCatSelect').value;
+            const con = document.getElementById('aiSuggestionsList');
+            const items = AI_DATABASE[cat] || AI_DATABASE.business;
+            con.innerHTML = '';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.style.cssText = `background: rgba(255,255,255,0.04); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s;`;
+                card.innerHTML = `
+                    <div style="font-weight: 800; font-size: 13px; color: white;">${item.h}</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 3px;">${item.s}</div>
+                    <div style="font-size: 10px; color: var(--qovrix-teal); margin-top: 6px; font-weight: 700;"><i class="fas fa-plus"></i> Click to Insert onto Poster</div>
+                `;
+                card.onmouseenter = () => card.style.borderColor = 'var(--qovrix-purple)';
+                card.onmouseleave = () => card.style.borderColor = 'var(--border-color)';
+                card.onclick = () => {
+                    editor.addElement({ type: 'text', text: item.h, fontSize: 40, fontWeight: '800', width: 540, height: 60, y: 180 });
+                    editor.addElement({ type: 'text', text: item.s, fontSize: 20, fontWeight: '500', color: '#94a3b8', width: 540, height: 40, y: 260 });
+                    closeAITextModal();
+                    editor.showToast('Inserted AI Headlines!', 'success');
+                };
+                con.appendChild(card);
+            });
+        }
+        function toggleEditorFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    setTimeout(() => { if (window.editor) window.editor.fitStage(); }, 150);
+                }).catch(e => console.warn(e));
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        setTimeout(() => { if (window.editor) window.editor.fitStage(); }, 150);
+                    });
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('studioFsBtn');
+            if (btn) {
+                if (document.fullscreenElement) {
+                    btn.innerHTML = '<i class="fas fa-compress"></i> Exit';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
+                }
+            }
+            setTimeout(() => { if (window.editor) window.editor.fitStage(); }, 100);
+        });
+
+        // Key Shortcut 'F' for Fullscreen in Editor
+        document.addEventListener('keydown', (e) => {
+            if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT')) return;
+            if (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                e.preventDefault();
+                toggleEditorFullscreen();
+            }
+        });
+    </script>
+</body>
+</html>
